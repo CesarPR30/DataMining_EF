@@ -109,6 +109,7 @@
         <div class="hero-cta">
           <a class="btn primary" href="#simulacro">Hacer el simulacro 2026-1</a>
           <a class="btn" href="#practica">Practicar ejercicios</a>
+          <a class="btn ghost" href="#notas">Simular mi nota</a>
         </div>
       </div>
       <div class="hero-card" aria-label="Estructura del examen">
@@ -354,6 +355,7 @@
     function updateResult() {
       if (!submitted) return;
       const got = qs.reduce((s, q) => s + (q.score || 0), 0);
+      store.set('lastSim', { nota20: Math.round(got / totalPts * 20 * 100) / 100, mode, at: Date.now() });
       const prac = qs.filter(q => q.kind === 'prac'), cas = qs.filter(q => q.kind === 'case');
       $('#examResult', box).innerHTML = `<div class="result"><div class="res-big"><span>${E.fmt(got, 2)}</span><small>/ ${totalPts}</small></div><div class="res-rows">
         <div><span>Prácticos (automático)</span><b>${E.fmt(prac.reduce((s, q) => s + (q.score || 0), 0), 2)} / ${prac.reduce((s, q) => s + q.pts, 0)}</b></div>
@@ -371,9 +373,131 @@
   }
 
   /* ============================================================
+     VISTA: Simulador de notas (sistema de evaluación del curso)
+     ============================================================ */
+  const COMPONENTS = [
+    { id: 'EP', name: 'Examen Parcial', w: 0.20, week: 8, group: 'teo', kind: 'Examen individual' },
+    { id: 'EF', name: 'Examen Final', w: 0.20, week: 16, group: 'teo', kind: 'Examen individual' },
+    { id: 'P1', name: 'Proyecto 1', w: 0.20, week: 7, group: 'lab', kind: 'Proyecto grupal' },
+    { id: 'P2', name: 'Proyecto 2', w: 0.20, week: 16, group: 'lab', kind: 'Proyecto grupal' },
+    { id: 'EC1', name: 'Evaluación Continua 1', w: 0.10, week: 8, group: 'lab', kind: 'Evaluación continua grupal' },
+    { id: 'EC2', name: 'Evaluación Continua 2', w: 0.10, week: 15, group: 'lab', kind: 'Evaluación continua grupal' },
+  ];
+  const GCOL = { EP: 'var(--c1)', EF: 'var(--c5)', P1: 'var(--c3)', P2: 'var(--c6)', EC1: 'var(--c2)', EC2: 'var(--c4)' };
+  function viewNotas(el) {
+    const saved = store.get('grades', {});
+    const vals = {}; COMPONENTS.forEach(c => { vals[c.id] = saved[c.id] != null && saved[c.id] !== '' ? saved[c.id] : ''; });
+    let target = store.get('gradeTarget', 11);
+    const groups = [{ id: 'teo', name: 'Teoría', w: 40 }, { id: 'lab', name: 'Laboratorio', w: 60 }];
+    el.innerHTML = `<header class="col-h wide"><h2>Simulador de notas</h2><p class="muted">Sistema de evaluación del curso (escala 0–20). Escribe las notas que ya tienes; deja en blanco lo pendiente y la calculadora te dice cuánto necesitas.</p></header>
+      <div class="grades">
+        <div class="g-card">${groups.map(g => `<div class="g-group"><div class="g-gh"><span>${g.name}</span><span>${g.w}%</span></div>
+          ${COMPONENTS.filter(c => c.group === g.id).map(c => `<div class="g-row" data-c="${c.id}">
+            <div><div class="g-name">${c.name} (${c.id}) <span class="pill g-chip">${Math.round(c.w * 100)}%</span></div><div class="g-meta">Semana ${c.week} · ${c.kind}</div></div>
+            <div class="g-in"><input type="number" id="g-${c.id}" min="0" max="20" step="0.1" inputmode="decimal" placeholder="—" aria-label="Nota de ${c.name}"><span class="g-contrib" id="gc-${c.id}">pendiente</span></div>
+            <input class="g-range" type="range" id="gr-${c.id}" min="0" max="20" step="0.5" aria-label="Deslizar nota de ${c.name}">
+          </div>`).join('')}</div>`).join('')}
+          <div class="g-actions" style="margin-top:1rem">
+            <button class="btn small" type="button" id="gUseSim" hidden>Usar mi último simulacro como EF</button>
+            <button class="btn small ghost" type="button" id="gClear">Borrar notas</button>
+          </div>
+        </div>
+        <aside class="g-res" aria-live="polite">
+          <div class="g-card">
+            <p class="rx-k">Nota final</p>
+            <div class="g-final"><b id="gFinal">0.00</b><small>/ 20</small></div>
+            <p style="margin:.4rem 0 .8rem"><span class="g-status" id="gStatus"></span> <span class="muted small" id="gEval"></span></p>
+            <div class="g-stack" id="gStack"></div>
+            <div class="g-legend" style="margin-top:.5rem">${COMPONENTS.map(c => `<span><i style="background:${GCOL[c.id]}"></i>${c.id}</span>`).join('')}</div>
+          </div>
+          <div class="g-card">
+            <div class="g-kv"><span>Teoría (sobre 20)</span><b id="gTeo">—</b></div>
+            <div class="g-kv"><span>Laboratorio (sobre 20)</span><b id="gLab">—</b></div>
+            <div class="g-kv"><span>Puntos asegurados</span><b id="gAcc">0</b></div>
+            <div class="g-kv"><span>Promedio de lo rendido</span><b id="gAvg">—</b></div>
+          </div>
+          <div class="g-card g-need">
+            <div class="g-target"><label for="gTarget">Nota que quiero alcanzar:</label><input type="number" id="gTarget" min="0" max="20" step="0.5" inputmode="decimal"></div>
+            <div id="gNeed"></div>
+            <p class="muted small" style="margin-top:.6rem">Verifica en tu sílabo la nota mínima aprobatoria y si hay requisitos adicionales (por ejemplo, un mínimo en teoría).</p>
+          </div>
+        </aside>
+      </div>`;
+    const f2 = (x) => (Math.round(x * 100) / 100).toFixed(2);
+    const num = (v) => (v === '' || v == null || isNaN(+v) ? null : Math.max(0, Math.min(20, +v)));
+    function recompute() {
+      let acc = 0, wDone = 0; const pend = [];
+      COMPONENTS.forEach(c => {
+        const v = num(vals[c.id]);
+        const out = $('#gc-' + c.id, el);
+        $('#gr-' + c.id, el).classList.toggle('pending', v == null);
+        if (v == null) { pend.push(c); out.textContent = 'pendiente'; }
+        else { acc += v * c.w; wDone += c.w; out.textContent = '+' + f2(v * c.w) + ' pts'; }
+      });
+      const wPend = 1 - wDone;
+      $('#gFinal', el).textContent = f2(acc);
+      $('#gAcc', el).textContent = f2(acc);
+      $('#gAvg', el).textContent = wDone ? f2(acc / wDone) : '—';
+      const sub = (grp) => { const cs = COMPONENTS.filter(c => c.group === grp); const done = cs.filter(c => num(vals[c.id]) != null); if (!done.length) return '—'; const tw = cs.reduce((s, c) => s + c.w, 0); const v = cs.reduce((s, c) => s + (num(vals[c.id]) || 0) * c.w, 0) / tw; return f2(v) + (done.length < cs.length ? ' *' : ''); };
+      $('#gTeo', el).textContent = sub('teo'); $('#gLab', el).textContent = sub('lab');
+      $('#gEval', el).textContent = `${Math.round(wDone * 100)}% del curso evaluado${pend.length ? ' · * pendientes cuentan como 0' : ''}`;
+      const st = $('#gStatus', el);
+      if (!pend.length) { const pass = acc >= target - 1e-9; st.className = 'g-status ' + (pass ? 'ok' : 'bad'); st.textContent = pass ? 'Alcanzas la meta' : 'Debajo de la meta'; }
+      else if (acc >= target - 1e-9) { st.className = 'g-status ok'; st.textContent = 'Meta asegurada'; }
+      else if (acc + 20 * wPend < target) { st.className = 'g-status bad'; st.textContent = 'Meta ya no alcanzable'; }
+      else { st.className = 'g-status mid'; st.textContent = 'En curso'; }
+      $('#gStack', el).innerHTML = COMPONENTS.map(c => { const v = num(vals[c.id]); return v == null ? '' : `<span style="width:${(v * c.w / 20) * 100}%;background:${GCOL[c.id]}" title="${c.id}: ${f2(v * c.w)} pts"></span>`; }).join('');
+      const need = $('#gNeed', el);
+      if (!pend.length) { need.innerHTML = `<p>Ya tienes todas las notas. Final: <b>${f2(acc)}</b> (redondeado: <b>${Math.round(acc)}</b>).</p>`; return; }
+      const req = (target - acc) / wPend;
+      const names = pend.map(c => c.id).join(', ');
+      let html;
+      if (req <= 0) html = `<p>Ya superas ${f2(target)} aunque saques 0 en ${names}.</p>`;
+      else if (req > 20) html = `<p>Necesitarías <b>${f2(req)}</b> de promedio en ${names}: más de 20, no es posible con lo pendiente. Lo máximo que puedes llegar es <b>${f2(acc + 20 * wPend)}</b>.</p>`;
+      else html = `<p>Necesitas un promedio de</p><p class="big">${f2(req)}</p><p>en <b>${names}</b> (${Math.round(wPend * 100)}% del curso) para llegar a ${f2(target)}.</p>`;
+      if (pend.length > 1 && pend.some(c => c.id === 'EF') && wDone > 0) {
+        const others = pend.filter(c => c.id !== 'EF'); const avg = acc / wDone;
+        const efNeed = (target - acc - others.reduce((s, c) => s + c.w * avg, 0)) / 0.2;
+        html += `<p class="small">Si en ${others.map(c => c.id).join(', ')} sacas tu promedio actual (${f2(avg)}), en el <b>EF</b> necesitas <b>${efNeed <= 0 ? '0 (ya estás)' : efNeed > 20 ? f2(efNeed) + ' (no alcanza)' : f2(efNeed)}</b>.</p>`;
+      }
+      need.innerHTML = html;
+    }
+    COMPONENTS.forEach(c => {
+      const inp = $('#g-' + c.id, el), rg = $('#gr-' + c.id, el);
+      inp.value = vals[c.id]; rg.value = num(vals[c.id]) ?? 10;
+      inp.addEventListener('input', () => { vals[c.id] = inp.value; if (num(inp.value) != null) rg.value = num(inp.value); store.set('grades', vals); recompute(); });
+      inp.addEventListener('change', () => { const v = num(inp.value); if (v != null && String(v) !== inp.value) { inp.value = v; vals[c.id] = String(v); store.set('grades', vals); recompute(); } });
+      rg.addEventListener('input', () => { inp.value = rg.value; vals[c.id] = rg.value; store.set('grades', vals); recompute(); });
+    });
+    const tg = $('#gTarget', el); tg.value = target;
+    tg.addEventListener('input', () => { const v = num(tg.value); if (v != null) { target = v; store.set('gradeTarget', v); recompute(); } });
+    const last = store.get('lastSim', null), useSim = $('#gUseSim', el);
+    if (last) {
+      useSim.hidden = false; useSim.textContent = `Usar mi último simulacro como EF (${f2(last.nota20)})`;
+      useSim.addEventListener('click', () => { vals.EF = String(last.nota20); $('#g-EF', el).value = vals.EF; $('#gr-EF', el).value = last.nota20; store.set('grades', vals); recompute(); });
+    }
+    $('#gClear', el).addEventListener('click', () => { COMPONENTS.forEach(c => { vals[c.id] = ''; $('#g-' + c.id, el).value = ''; $('#gr-' + c.id, el).value = 10; }); store.set('grades', vals); recompute(); });
+    recompute();
+  }
+
+  /* ---------- tema claro / oscuro ---------- */
+  function applyTheme(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    const b = document.getElementById('themeBtn');
+    if (b) b.setAttribute('aria-label', t === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro');
+    const m = document.getElementById('themeColor'); if (m) m.setAttribute('content', t === 'dark' ? '#151b29' : '#ffffff');
+  }
+  function initTheme() {
+    applyTheme(store.get('theme', 'light') === 'dark' ? 'dark' : 'light');
+    const b = document.getElementById('themeBtn');
+    if (b && !b.dataset.bound) { b.dataset.bound = 1; b.addEventListener('click', () => { const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; store.set('theme', t); applyTheme(t); }); }
+  }
+  initTheme();
+
+  /* ============================================================
      Router por hash
      ============================================================ */
-  const views = { inicio: viewInicio, teoria: viewTeoria, resolver: viewResolver, practica: viewPractica, simulacro: viewSimulacro };
+  const views = { inicio: viewInicio, teoria: viewTeoria, resolver: viewResolver, practica: viewPractica, simulacro: viewSimulacro, notas: viewNotas };
   function route() {
     let v = (location.hash || '#inicio').slice(1);
     if (!views[v]) v = 'inicio';
