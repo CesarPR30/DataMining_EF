@@ -1,0 +1,490 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:00.676
+Bienvenido.
+
+2
+00:00:00.676 --> 00:00:04.545
+En este video repasamos la teoría de sistemas de recomendación:
+
+3
+00:00:04.545 --> 00:00:09.458
+la matriz de utilidad, el enfoque basado en contenido, el filtrado colaborativo,
+
+4
+00:00:09.458 --> 00:00:15.109
+cómo se evalúa un recomendador y los modelos de factores latentes que se usaron en el premio
+
+5
+00:00:15.109 --> 00:00:15.600
+Netflix.
+
+6
+00:00:16.700 --> 00:00:19.405
+Todo empieza con la matriz de utilidad.
+
+7
+00:00:19.405 --> 00:00:22.595
+Cada fila es un usuario, cada columna un ítem,
+
+8
+00:00:22.595 --> 00:00:26.132
+y cada celda la calificación que el usuario le dio.
+
+9
+00:00:26.482 --> 00:00:32.452
+El objetivo es predecir la utilidad de un ítem para un usuario en las celdas que todavía no
+
+10
+00:00:32.452 --> 00:00:33.108
+conocemos.
+
+11
+00:00:33.108 --> 00:00:36.322
+Por ejemplo, ¿cuánto le gustaría Piratas a Carol?
+
+12
+00:00:36.672 --> 00:00:39.524
+El reto es que la matriz es muy dispersa.
+
+13
+00:00:39.524 --> 00:00:44.673
+En un catálogo real, un usuario califica una fracción mínima de los ítems,
+
+14
+00:00:44.673 --> 00:00:47.664
+así que casi todas las celdas están vacías.
+
+15
+00:00:48.014 --> 00:00:53.752
+Las calificaciones pueden ser explícitas, cuando el usuario pone estrellas, o implícitas,
+
+16
+00:00:53.752 --> 00:00:57.169
+cuando inferimos interés a partir de compras o clics.
+
+17
+00:00:57.169 --> 00:00:58.910
+En la práctica se combinan.
+
+18
+00:00:59.260 --> 00:01:01.887
+Y la motivación de negocio es la cola larga:
+
+19
+00:01:01.887 --> 00:01:04.514
+una tienda online tiene estantes ilimitados,
+
+20
+00:01:04.514 --> 00:01:08.812
+y puede vender productos poco populares si sabe a quién recomendárselos.
+
+21
+00:01:09.612 --> 00:01:13.620
+Para llenar las celdas vacías hay tres grandes enfoques.
+
+22
+00:01:13.970 --> 00:01:16.318
+El primero es el basado en contenido:
+
+23
+00:01:16.318 --> 00:01:19.365
+si te gustó un ítem con ciertas características,
+
+24
+00:01:19.365 --> 00:01:22.538
+te recomiendo otros con características parecidas.
+
+25
+00:01:22.888 --> 00:01:25.546
+El segundo es el filtrado colaborativo:
+
+26
+00:01:25.546 --> 00:01:28.885
+no mira las características, sino a los usuarios.
+
+27
+00:01:28.885 --> 00:01:34.336
+Si dos personas coincidieron en el pasado, probablemente coincidan en el futuro.
+
+28
+00:01:34.686 --> 00:01:38.176
+Y el tercero son los modelos de factores latentes,
+
+29
+00:01:38.176 --> 00:01:41.806
+que aprenden vectores ocultos para usuarios e ítems.
+
+30
+00:01:41.806 --> 00:01:43.062
+Vamos uno por uno.
+
+31
+00:01:43.862 --> 00:01:48.547
+En el enfoque basado en contenido, cada ítem se representa con un perfil:
+
+32
+00:01:48.547 --> 00:01:52.334
+un vector de características, como el género o los actores.
+
+33
+00:01:52.684 --> 00:01:56.923
+Cuando los ítems son textos, el perfil se construye con TF-IDF.
+
+34
+00:01:56.923 --> 00:02:02.843
+La frecuencia del término, TF, se normaliza dividiendo entre la frecuencia máxima en ese
+
+35
+00:02:02.843 --> 00:02:03.516
+documento.
+
+36
+00:02:03.516 --> 00:02:09.100
+El IDF es el logaritmo de N entre el número de documentos que contienen el término.
+
+37
+00:02:09.450 --> 00:02:14.864
+La idea es que una palabra pesa mucho si es frecuente en ese documento pero rara en la
+
+38
+00:02:14.864 --> 00:02:15.493
+colección.
+
+39
+00:02:15.493 --> 00:02:19.145
+Palabras como "el" o "y" aparecen en todos los documentos,
+
+40
+00:02:19.145 --> 00:02:21.474
+así que su IDF es prácticamente cero.
+
+41
+00:02:21.824 --> 00:02:26.506
+El perfil del usuario es el promedio de los perfiles de los ítems que calificó alto,
+
+42
+00:02:26.506 --> 00:02:30.464
+y la predicción es el coseno entre el perfil del usuario y el del ítem.
+
+43
+00:02:30.814 --> 00:02:31.453
+Ventajas:
+
+44
+00:02:31.453 --> 00:02:36.923
+no necesita datos de otros usuarios, recomienda ítems nuevos y es explicable.
+
+45
+00:02:36.923 --> 00:02:37.776
+Desventajas:
+
+46
+00:02:37.776 --> 00:02:43.246
+tiende a la sobreespecialización y no sirve para un usuario nuevo sin perfil.
+
+47
+00:02:44.046 --> 00:02:50.428
+En filtrado colaborativo lo central es medir qué tan parecidos son dos usuarios, o dos ítems.
+
+48
+00:02:50.428 --> 00:02:52.830
+Hay tres medidas que debes conocer.
+
+49
+00:02:53.180 --> 00:02:57.992
+Jaccard mira solo qué ítems calificaron ambos, intersección sobre unión.
+
+50
+00:02:57.992 --> 00:03:01.601
+Su problema es que ignora el valor de la calificación:
+
+51
+00:03:01.601 --> 00:03:03.740
+un uno y un cinco cuentan igual.
+
+52
+00:03:04.090 --> 00:03:09.022
+El coseno trata cada usuario como un vector, poniendo cero en los vacíos.
+
+53
+00:03:09.022 --> 00:03:13.954
+El problema es que ese cero se interpreta como una calificación negativa.
+
+54
+00:03:14.304 --> 00:03:16.494
+Pearson corrige ambos problemas:
+
+55
+00:03:16.494 --> 00:03:22.310
+usa solo los ítems en común y centra cada calificación restando la media del usuario.
+
+56
+00:03:22.310 --> 00:03:26.074
+Así elimina el sesgo de usuarios generosos o exigentes.
+
+57
+00:03:26.074 --> 00:03:29.016
+Es la recomendada, y va de menos uno a uno.
+
+58
+00:03:29.816 --> 00:03:33.867
+Con las similitudes listas, la predicción es un promedio ponderado:
+
+59
+00:03:33.867 --> 00:03:39.368
+sumamos similitud por calificación de cada vecino y dividimos entre la suma de similitudes.
+
+60
+00:03:39.718 --> 00:03:45.107
+En la versión usuario-usuario, los vecinos son los k usuarios más parecidos a x que sí
+
+61
+00:03:45.107 --> 00:03:46.486
+calificaron el ítem i.
+
+62
+00:03:46.836 --> 00:03:52.257
+En la versión ítem-ítem, los vecinos son los k ítems más parecidos a i que el usuario x ya
+
+63
+00:03:52.257 --> 00:03:56.052
+calificó, y ponderamos las notas que el propio usuario les dio.
+
+64
+00:03:56.402 --> 00:04:00.389
+En la práctica, ítem-ítem funciona mejor, como en Amazon o Netflix:
+
+65
+00:04:00.389 --> 00:04:03.840
+los ítems son más estables que los gustos de las personas,
+
+66
+00:04:03.840 --> 00:04:07.946
+hay menos ítems que usuarios y las similitudes se pueden precalcular.
+
+67
+00:04:08.296 --> 00:04:11.086
+Una mejora es el baseline o efectos globales:
+
+68
+00:04:11.086 --> 00:04:14.991
+la media global más el sesgo del usuario más el sesgo del ítem.
+
+69
+00:04:14.991 --> 00:04:18.277
+En el ejemplo de clase, la media es tres punto siete,
+
+70
+00:04:18.277 --> 00:04:22.864
+Alicia califica medio punto por debajo y Star Wars medio punto por encima,
+
+71
+00:04:22.864 --> 00:04:25.096
+así que la base es tres punto siete.
+
+72
+00:04:25.896 --> 00:04:31.273
+El filtrado colaborativo sirve para cualquier tipo de ítem y descubre patrones que nadie
+
+73
+00:04:31.273 --> 00:04:31.823
+programó.
+
+74
+00:04:31.823 --> 00:04:35.061
+Pero sufre de cold start con usuarios o ítems nuevos,
+
+75
+00:04:35.061 --> 00:04:38.544
+de la dispersión de la matriz y del sesgo de popularidad.
+
+76
+00:04:38.894 --> 00:04:44.889
+Para evaluar un recomendador se ocultan alrededor del veinte por ciento de las calificaciones,
+
+77
+00:04:44.889 --> 00:04:47.822
+se predicen y se mide el error con RMSE o MAE.
+
+78
+00:04:48.172 --> 00:04:52.155
+Recuerda que el RMSE siempre es mayor o igual que el MAE,
+
+79
+00:04:52.155 --> 00:04:57.115
+porque eleva los errores al cuadrado y castiga más los errores grandes.
+
+80
+00:04:57.115 --> 00:04:59.980
+El MAE es más robusto a valores atípicos.
+
+81
+00:05:00.330 --> 00:05:06.258
+El premio Netflix pedía mejorar en un diez por ciento el RMSE del sistema Cinematch.
+
+82
+00:05:07.058 --> 00:05:11.295
+El filtrado colaborativo clásico usa similitudes elegidas a mano.
+
+83
+00:05:11.295 --> 00:05:16.054
+Los factores latentes, en cambio, aprenden la estructura desde los datos.
+
+84
+00:05:16.054 --> 00:05:21.530
+La predicción es el producto punto entre el vector del ítem y el vector del usuario.
+
+85
+00:05:21.880 --> 00:05:26.460
+Cada ítem y cada usuario se representan con un vector de k dimensiones,
+
+86
+00:05:26.460 --> 00:05:28.912
+típicamente entre veinte y doscientos.
+
+87
+00:05:29.262 --> 00:05:31.855
+Esos factores no se definen de antemano:
+
+88
+00:05:31.855 --> 00:05:37.950
+emergen del entrenamiento, y a veces se interpretan, por ejemplo, como serio contra divertido.
+
+89
+00:05:38.300 --> 00:05:40.210
+Pregunta típica de examen:
+
+90
+00:05:40.210 --> 00:05:42.927
+¿por qué no aplicar SVD directamente?
+
+91
+00:05:42.927 --> 00:05:48.729
+Porque SVD necesita la matriz completa, y nuestra matriz tiene casi todo vacío.
+
+92
+00:05:48.729 --> 00:05:52.181
+Rellenar con ceros o promedios introduce sesgo.
+
+93
+00:05:52.181 --> 00:05:56.588
+Por eso se optimiza solo sobre las calificaciones conocidas.
+
+94
+00:05:56.938 --> 00:06:02.600
+La función objetivo es el error cuadrático sobre las calificaciones conocidas más un término
+
+95
+00:06:02.600 --> 00:06:07.030
+de regularización, que penaliza vectores grandes y evita el sobreajuste.
+
+96
+00:06:07.030 --> 00:06:08.938
+Lambda se elige con validación.
+
+97
+00:06:09.738 --> 00:06:12.873
+Se entrena con descenso de gradiente estocástico.
+
+98
+00:06:12.873 --> 00:06:16.199
+Para cada calificación conocida calculamos el error,
+
+99
+00:06:16.199 --> 00:06:21.828
+y actualizamos el vector del ítem y el del usuario en la dirección que reduce ese error,
+
+100
+00:06:21.828 --> 00:06:24.259
+restando el término de regularización.
+
+101
+00:06:24.259 --> 00:06:24.515
+Ojo:
+
+102
+00:06:24.515 --> 00:06:26.946
+para actualizar p se usa el q antiguo.
+
+103
+00:06:27.296 --> 00:06:33.132
+El descenso de gradiente completo usa todos los datos en cada paso, es exacto pero caro.
+
+104
+00:06:33.132 --> 00:06:36.116
+El estocástico usa una calificación por paso:
+
+105
+00:06:36.116 --> 00:06:41.288
+los pasos son ruidosos pero baratísimos, y en total converge mucho más rápido.
+
+106
+00:06:41.638 --> 00:06:44.041
+El modelo final agrega los sesgos:
+
+107
+00:06:44.041 --> 00:06:49.131
+media global, sesgo del usuario y sesgo del ítem, más el producto punto.
+
+108
+00:06:49.131 --> 00:06:51.958
+Todos los parámetros se aprenden juntos.
+
+109
+00:06:52.308 --> 00:06:57.306
+El equipo ganador del premio Netflix combinó tres niveles, efectos globales,
+
+110
+00:06:57.306 --> 00:07:02.436
+factorización y filtrado colaborativo local, en un ensamble de muchos modelos.
+
+111
+00:07:03.236 --> 00:07:03.846
+Resumen.
+
+112
+00:07:03.846 --> 00:07:08.347
+La matriz de utilidad es dispersa y el trabajo es llenarla.
+
+113
+00:07:08.347 --> 00:07:15.212
+El enfoque de contenido usa perfiles, TF-IDF y coseno, y es bueno cuando hay ítems nuevos.
+
+114
+00:07:15.562 --> 00:07:19.024
+El filtrado colaborativo se basa en similitudes;
+
+115
+00:07:19.024 --> 00:07:23.280
+Pearson centra las calificaciones y usa solo ítems comunes,
+
+116
+00:07:23.280 --> 00:07:26.743
+y la versión ítem-ítem es la que mejor funciona.
+
+117
+00:07:26.743 --> 00:07:28.546
+Para evaluar, RMSE y MAE.
+
+118
+00:07:28.896 --> 00:07:33.154
+Los factores latentes predicen con un producto punto más sesgos,
+
+119
+00:07:33.154 --> 00:07:37.080
+y se entrenan con SGD y regularización, no con SVD directo.
+
+120
+00:07:37.430 --> 00:07:44.143
+En el video práctico resolvemos paso a paso el ejercicio de filtrado colaborativo del examen y
+
+121
+00:07:44.143 --> 00:07:45.214
+un paso de SGD.
+
+122
+00:07:45.214 --> 00:07:46.214
+Nos vemos ahí.
+

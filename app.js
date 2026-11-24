@@ -109,6 +109,7 @@
         <div class="hero-cta">
           <a class="btn primary" href="#simulacro">Hacer el simulacro 2026-1</a>
           <a class="btn" href="#practica">Practicar ejercicios</a>
+          <a class="btn ghost" href="#inicio" data-scroll-v>Ver los videos</a>
           <a class="btn ghost" href="#notas">Simular mi nota</a>
         </div>
       </div>
@@ -128,6 +129,12 @@
         <article class="card"><h3>Ejercicios prácticos · 8 pts</h3><p>Tres cálculos a mano mostrando el procedimiento: <b>FC ítem-ítem con coseno</b> (2 pts), <b>edge betweenness con Brandes</b> desde dos fuentes + aristas puente (3 pts) y <b>agregación de Louvain</b> en dos niveles (3 pts).</p><p class="muted small">Piden tablas intermedias: árbol BFS, crédito, aporte por fuente.</p></article>
         <article class="card"><h3>Qué puede venir</h3><p>"Puede venir cualquier tema". Los prácticos salen de algoritmos que se hacen a mano en clase: PageRank (power iteration, β, block-stripe), modularidad, ΔQ, LPA, espectral, node2vec, capa GNN, SGD. Todos están en <a href="#practica">Práctica</a>.</p></article>
       </div>
+    </section>
+
+    <section class="block" id="videos-inicio">
+      <h2>Videos por tema</h2>
+      <p class="muted vg-lead">Dos videos por tema: uno de <b>teoría</b> y otro <b>práctico</b> que resuelve los ejercicios paso a paso, con subtítulos y capítulos. También aparecen dentro de Teoría y Cómo resolver.</p>
+      <div class="vgrid" id="vgrid"></div>
     </section>
 
     <section class="block">
@@ -153,6 +160,57 @@
     const total = genIds.length, done = genIds.filter(g => stats[g] && stats[g].p > 0).length;
     pb.innerHTML = `<div class="progress"><div class="pr-top"><span>Tipos de ejercicio resueltos al 100% al menos una vez</span><b>${done} / ${total}</b></div><div class="hc-bar"><span style="width:${(done / total) * 100}%"></span></div></div>`;
     $$('[data-topic]', el).forEach(a => a.addEventListener('click', () => { store.set('topic:teoria', a.dataset.topic); }));
+    const vg = $('#vgrid', el);
+    D.topics.forEach(t => {
+      const vt = VIDS[t.id + '-teoria'], vp = VIDS[t.id + '-practica'];
+      if (!vt && !vp) return;
+      const btn = (v, view) => v ? `<a class="vc-b" href="#${view}" data-vtopic="${t.id}" data-vview="${view}" aria-label="${E.esc(v.title)}"><img src="videos/${v.id}.jpg" alt="" loading="lazy" width="320" height="180"><span class="vc-k ${v.kind === 'teoria' ? 'vk-t' : 'vk-p'}">${v.kind === 'teoria' ? 'Teoría' : 'Práctica'}</span><span class="vc-d mono">${mmss(v.dur)}</span>${watched[v.id] ? '<span class="vc-w">✓ visto</span>' : ''}</a>` : '';
+      vg.appendChild(h(`<article class="vcard"><div class="vc-h"><h3>${t.short}</h3><span class="muted small">${t.clases}</span></div><div class="vc-row">${btn(vt, 'teoria')}${btn(vp, 'resolver')}</div></article>`));
+    });
+    $$('[data-vtopic]', vg).forEach(a => a.addEventListener('click', () => {
+      store.set('topic:' + a.dataset.vview, a.dataset.vtopic);
+      focusVideo = true;
+    }));
+    $('[data-scroll-v]', el).addEventListener('click', (e) => { e.preventDefault(); $('#videos-inicio', el).scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+  }
+
+  /* ============================================================
+     Videos explicativos (teoría y práctica por tema)
+     ============================================================ */
+  const VIDS = {};
+  (window.DM_VIDEOS || []).forEach(v => { VIDS[v.id] = v; });
+  const watched = store.get('videos', {});
+  const mmss = (t) => { t = Math.round(t); return Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); };
+  let focusVideo = false;
+  function renderVideo(id) {
+    const v = VIDS[id];
+    if (!v) return null;
+    const isT = v.kind === 'teoria';
+    const box = h(`<section class="vid" aria-label="${E.esc(v.title)}">
+      <div class="vid-media"><video controls playsinline preload="none" poster="videos/${v.id}.jpg">
+        <source src="videos/${v.id}.mp4" type="video/mp4">
+        <track kind="captions" srclang="es" label="Español" src="videos/${v.id}.vtt">
+      </video></div>
+      <div class="vid-meta">
+        <span class="pill ${isT ? 'vk-t' : 'vk-p'}">${isT ? 'Video de teoría' : 'Video práctico'}</span>
+        <b class="vid-t">${E.esc(v.title)}</b>
+        <span class="vid-d mono">${mmss(v.dur)}</span>
+        <span class="vid-w" ${watched[id] ? '' : 'hidden'}>✓ visto</span>
+        <a class="vid-dl lnk small" href="videos/${v.id}.mp4" download>Descargar</a>
+      </div>
+      <p class="vid-desc muted small">${E.esc(v.desc)}</p>
+      <details class="vid-ch"><summary>Capítulos · ${v.chapters.length}</summary><div class="vid-chl">${v.chapters.map(c => `<button type="button" data-t="${c.t}"><span class="mono">${mmss(c.t)}</span>${E.esc(c.title)}</button>`).join('')}</div></details>
+    </section>`);
+    const vid = $('video', box);
+    $('.vid-chl', box).addEventListener('click', (e) => {
+      const b = e.target.closest('[data-t]'); if (!b) return;
+      const go = () => { vid.currentTime = +b.dataset.t; vid.play().catch(() => {}); };
+      if (vid.readyState >= 1) go(); else { vid.preload = 'metadata'; vid.addEventListener('loadedmetadata', go, { once: true }); vid.load(); }
+    });
+    vid.addEventListener('timeupdate', () => {
+      if (!watched[id] && vid.duration && vid.currentTime / vid.duration > 0.9) { watched[id] = 1; store.set('videos', watched); $('.vid-w', box).hidden = false; }
+    });
+    return box;
   }
 
   /* ============================================================
@@ -174,6 +232,8 @@
   function viewTeoria(el) {
     topicLayout(el, 'teoria', D.topics, (col, id) => {
       col.innerHTML = `<article class="prose">${D.theory[id]}</article>`;
+      const tv = renderVideo(id + '-teoria');
+      if (tv) col.prepend(tv);
       const qz = D.quizzes[id];
       if (qz) col.appendChild(renderQuiz(qz, id));
       const gens = gensOf(id);
@@ -210,6 +270,8 @@
     topicLayout(el, 'resolver', list.concat([{ id: 'dis', short: 'Casos de estudio', clases: 'Respuestas modelo' }]), (col, id) => {
       if (id === 'dis') { renderCasesGuide(col); return; }
       col.innerHTML = `<header class="col-h"><h2>${D.topics.find(t => t.id === id).name}</h2><p class="muted">Receta, trampas frecuentes y un ejemplo resuelto para cada tipo de ejercicio. "Otro ejemplo" genera números nuevos.</p></header>`;
+      const pv = renderVideo(id + '-practica');
+      if (pv) col.appendChild(pv);
       const toc = h(`<div class="toc">${gensOf(id).map(g => `<a href="#resolver" data-scroll="rx-${g}" class="chip">${E.G[g].title}</a>`).join('')}</div>`);
       col.appendChild(toc);
       toc.addEventListener('click', (e) => { const a = e.target.closest('[data-scroll]'); if (!a) return; e.preventDefault(); document.getElementById(a.dataset.scroll).scrollIntoView({ behavior: 'smooth', block: 'start' }); });
@@ -232,7 +294,9 @@
     return wrap;
   }
   function renderCasesGuide(col) {
-    col.innerHTML = `<article class="prose">${D.theory.dis}</article><h2 class="sec-gap">Banco de casos con respuesta modelo</h2><p class="muted">Intenta responder antes de abrir la respuesta. En el simulacro puedes escribir y autocorregirte con la rúbrica.</p>`;
+    col.innerHTML = `<div id="dis-vid"></div><article class="prose">${D.theory.dis}</article><h2 class="sec-gap">Banco de casos con respuesta modelo</h2><p class="muted">Intenta responder antes de abrir la respuesta. En el simulacro puedes escribir y autocorregirte con la rúbrica.</p>`;
+    const dv = renderVideo('dis-practica');
+    if (dv) $('#dis-vid', col).appendChild(dv);
     D.cases.forEach(c => {
       col.appendChild(h(`<details class="case-d"><summary><span class="pill">${topicName(c.topic)}</span> ${c.title}${c.exam ? ' <span class="pill hit">2026-1</span>' : ''}</summary><div class="case-body"><p class="case-prompt">${c.prompt}</p><div class="model">${c.answer}</div><p class="rx-k">Rúbrica (2 pts)</p><ul class="rubric-list">${c.rubric.map(r => `<li>${r[0]} <span class="muted">(${r[1]})</span></li>`).join('')}</ul></div></details>`));
     });
@@ -507,6 +571,9 @@
     main.innerHTML = '';
     views[v](main);
     window.scrollTo({ top: 0 });
+    const vbox = focusVideo && $('.vid', main);
+    focusVideo = false;
+    if (vbox) setTimeout(() => vbox.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
   }
   window.addEventListener('hashchange', route);
   document.addEventListener('DOMContentLoaded', route);

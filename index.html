@@ -307,6 +307,38 @@ table.mtx { border-collapse: collapse; font-size: .9rem; background: var(--surfa
 .res-rows { display: grid; gap: .3rem; flex: 1; min-width: 220px; } .res-rows > div { display: flex; justify-content: space-between; gap: 1rem; }
 .res-rows p { margin: .3rem 0 0; }
 
+/* ---------- videos ---------- */
+.vid { max-width: 78ch; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin-bottom: 1.8rem; box-shadow: var(--shadow); }
+.vid-media { background: #0d111b; }
+.vid video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; background: #0d111b; }
+.vid-meta { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem .7rem; padding: .75rem 1rem 0; }
+.vid-t { font-family: var(--f-display); font-size: 1.05rem; }
+.vid-d { color: var(--muted); font-size: .82rem; }
+.vid-w { font-size: .78rem; font-weight: 700; color: var(--ok); }
+.vid-dl { margin-left: auto; }
+.vid-desc { margin: .3rem 1rem .5rem; }
+.pill.vk-t, .vc-k.vk-t { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
+.pill.vk-p, .vc-k.vk-p { background: var(--amber-soft); color: var(--amber); border-color: transparent; }
+.vid-ch { padding: 0 1rem .8rem; }
+.vid-ch summary { cursor: pointer; font-weight: 600; font-size: .88rem; color: var(--accent); padding: .2rem 0; }
+.vid-chl { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .45rem; }
+.vid-chl button { display: inline-flex; gap: .45rem; align-items: baseline; font: 500 .82rem var(--f-body); padding: .3rem .6rem; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); cursor: pointer; text-align: left; }
+.vid-chl button:hover { border-color: var(--accent); color: var(--accent); }
+.vid-chl .mono { color: var(--muted); font-size: .76rem; }
+.vg-lead { margin: -.4rem 0 1rem; max-width: 75ch; }
+.vgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 1rem; }
+.vcard { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: .9rem 1rem 1rem; }
+.vc-h { display: flex; justify-content: space-between; align-items: baseline; gap: .6rem; margin-bottom: .6rem; }
+.vc-h h3 { font-size: 1.05rem; }
+.vc-row { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
+.vc-b { position: relative; display: block; border-radius: 8px; overflow: hidden; border: 1px solid var(--line); text-decoration: none; color: var(--ink); background: var(--surface-2); }
+.vc-b:hover { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+.vc-b img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; }
+.vc-b::after { content: ""; position: absolute; left: 50%; top: 38%; width: 34px; height: 34px; margin: -17px 0 0 -17px; border-radius: 50%; background: rgba(13, 17, 27, .72) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 7l9 5-9 5z' fill='%23fff'/%3E%3C/svg%3E") center / 20px no-repeat; }
+.vc-k { position: absolute; left: .4rem; bottom: .4rem; font-size: .7rem; font-weight: 700; padding: .1rem .45rem; border-radius: 99px; }
+.vc-d { position: absolute; right: .4rem; bottom: .4rem; font-size: .7rem; padding: .1rem .4rem; border-radius: 4px; background: rgba(13, 17, 27, .75); color: #fff; }
+.vc-w { position: absolute; right: .4rem; top: .4rem; font-size: .7rem; font-weight: 700; padding: .1rem .45rem; border-radius: 99px; background: var(--ok-soft); color: var(--ok); }
+@media (max-width: 560px) { .vgrid { grid-template-columns: 1fr; } .vid-dl { margin-left: 0; } }
 footer.foot { max-width: 1180px; margin: 0 auto; padding-block: 1.5rem 2.5rem; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); color: var(--muted); font-size: .84rem; border-top: 1px solid var(--line); }
 
 /* ---------- responsive ---------- */
@@ -369,6 +401,7 @@ footer.foot { max-width: 1180px; margin: 0 auto; padding-block: 1.5rem 2.5rem; p
 
 <script src="engine.js"></script>
 <script src="data.js"></script>
+<script src="videos.js"></script>
 <script src="app.js"></script>
 <script>
   // Modo sin conexión (solo en GitHub Pages / HTTPS; se ignora dentro de Claude o en file://)

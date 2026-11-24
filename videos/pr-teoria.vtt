@@ -1,0 +1,414 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:01.790
+En este video vemos PageRank:
+
+2
+00:00:01.790 --> 00:00:06.481
+la idea de los enlaces como votos, la ecuación de flujo, su forma matricial,
+
+3
+00:00:06.481 --> 00:00:10.556
+el método de potencias, los problemas de dead ends y spider traps,
+
+4
+00:00:10.556 --> 00:00:15.000
+el teletransporte y cómo se implementa cuando la Web no cabe en memoria.
+
+5
+00:00:16.100 --> 00:00:18.572
+La Web se modela como un grafo dirigido:
+
+6
+00:00:18.572 --> 00:00:24.380
+cada página es un nodo y cada hipervínculo una arista de la página origen a la página destino.
+
+7
+00:00:24.730 --> 00:00:28.198
+La búsqueda solo por palabras, con TF-IDF y coseno,
+
+8
+00:00:28.198 --> 00:00:33.434
+no distingue una página seria de una que repite la palabra jaguar cien veces.
+
+9
+00:00:33.434 --> 00:00:37.786
+Necesitamos una señal de autoridad, y esa señal son los enlaces.
+
+10
+00:00:38.136 --> 00:00:39.388
+La primera idea:
+
+11
+00:00:39.388 --> 00:00:41.032
+un enlace es un voto.
+
+12
+00:00:41.032 --> 00:00:45.336
+Una página con más enlaces entrantes es más importante.
+
+13
+00:00:45.686 --> 00:00:48.293
+Pero no todos los votos valen igual:
+
+14
+00:00:48.293 --> 00:00:52.059
+un voto que viene de una página importante vale más.
+
+15
+00:00:52.059 --> 00:00:54.014
+La definición es recursiva.
+
+16
+00:00:54.364 --> 00:00:59.253
+Y una página reparte su voto en partes iguales entre sus enlaces salientes:
+
+17
+00:00:59.253 --> 00:01:05.380
+si la página i tiene importancia r i y d i enlaces de salida, cada enlace lleva r i entre d i.
+
+18
+00:01:06.180 --> 00:01:09.651
+Juntando esas ideas obtenemos la ecuación de flujo:
+
+19
+00:01:09.651 --> 00:01:15.369
+la importancia de j es la suma, sobre las páginas que apuntan a j, de r i entre d i.
+
+20
+00:01:15.369 --> 00:01:18.636
+Y exigimos que todas las importancias sumen uno.
+
+21
+00:01:18.986 --> 00:01:23.179
+En el ejemplo clásico de la Web de tres páginas, y, a y m:
+
+22
+00:01:23.179 --> 00:01:26.505
+y recibe la mitad de sí misma y la mitad de a;
+
+23
+00:01:26.505 --> 00:01:28.819
+a recibe la mitad de y y todo m;
+
+24
+00:01:28.819 --> 00:01:30.626
+y m recibe la mitad de a.
+
+25
+00:01:30.976 --> 00:01:36.880
+Resolviendo con la condición de suma uno, se obtiene dos quintos, dos quintos y un quinto.
+
+26
+00:01:37.230 --> 00:01:42.974
+Con tres nodos esto se resuelve a mano, pero no con miles de millones de páginas.
+
+27
+00:01:42.974 --> 00:01:45.030
+Necesitamos otra formulación.
+
+28
+00:01:45.830 --> 00:01:48.464
+Escribimos la matriz estocástica M:
+
+29
+00:01:48.464 --> 00:01:54.108
+si la página i apunta a j, la entrada fila j, columna i vale uno entre d i.
+
+30
+00:01:54.108 --> 00:01:57.494
+La columna es el origen y la fila el destino.
+
+31
+00:01:57.844 --> 00:01:59.663
+M es columna-estocástica:
+
+32
+00:01:59.663 --> 00:02:04.756
+cada columna suma uno, porque cada página reparte toda su importancia.
+
+33
+00:02:05.106 --> 00:02:09.461
+Entonces la ecuación de flujo es simplemente r igual a M por r.
+
+34
+00:02:09.461 --> 00:02:13.746
+El vector de PageRank es el autovector de M con autovalor uno.
+
+35
+00:02:14.096 --> 00:02:16.077
+Hay una interpretación muy útil:
+
+36
+00:02:16.077 --> 00:02:20.286
+un surfista que salta de página en página siguiendo enlaces al azar.
+
+37
+00:02:20.286 --> 00:02:24.805
+PageRank es la fracción del tiempo que pasa en cada página a largo plazo,
+
+38
+00:02:24.805 --> 00:02:26.600
+la distribución estacionaria.
+
+39
+00:02:27.400 --> 00:02:30.541
+Para calcular r se usa power iteration.
+
+40
+00:02:30.541 --> 00:02:34.648
+Empezamos con todos los nodos iguales, uno entre N.
+
+41
+00:02:34.998 --> 00:02:37.549
+En cada iteración multiplicamos por M.
+
+42
+00:02:37.549 --> 00:02:38.824
+Fíjate en la tabla:
+
+43
+00:02:38.824 --> 00:02:43.590
+tras una iteración, y queda en un tercio, a en un medio, m en un sexto.
+
+44
+00:02:43.940 --> 00:02:49.700
+Y repetimos hasta que el cambio, medido con la norma uno, sea menor que un epsilon.
+
+45
+00:02:50.050 --> 00:02:56.222
+El vector converge a dos quintos, dos quintos, un quinto, igual que con las ecuaciones.
+
+46
+00:02:56.222 --> 00:02:59.698
+En la Web real bastan unas cincuenta iteraciones.
+
+47
+00:03:00.498 --> 00:03:03.909
+Power iteration tiene dos problemas estructurales.
+
+48
+00:03:03.909 --> 00:03:05.683
+El primero es el dead end:
+
+49
+00:03:05.683 --> 00:03:08.822
+una página sin enlaces salientes, como m aquí.
+
+50
+00:03:08.822 --> 00:03:14.553
+Su columna en M es de ceros, M deja de ser estocástica y en cada iteración se pierde
+
+51
+00:03:14.553 --> 00:03:17.418
+importancia, hasta que todo tiende a cero.
+
+52
+00:03:17.768 --> 00:03:19.751
+El segundo es la spider trap:
+
+53
+00:03:19.751 --> 00:03:23.308
+un conjunto de páginas que solo se enlazan entre sí.
+
+54
+00:03:23.308 --> 00:03:25.565
+Aquí m solo se apunta a sí misma.
+
+55
+00:03:25.565 --> 00:03:31.994
+El surfista entra y no sale, así que la trampa absorbe toda la importancia y el resto queda en
+
+56
+00:03:31.994 --> 00:03:32.336
+cero.
+
+57
+00:03:33.136 --> 00:03:35.878
+La solución de Google es el teletransporte.
+
+58
+00:03:35.878 --> 00:03:40.917
+La nueva ecuación suma beta por el flujo de enlaces más uno menos beta entre N,
+
+59
+00:03:40.917 --> 00:03:44.488
+con beta típicamente cero punto ocho o cero punto nueve.
+
+60
+00:03:44.838 --> 00:03:45.876
+Interpretación:
+
+61
+00:03:45.876 --> 00:03:50.859
+en cada paso, con probabilidad beta el surfista sigue un enlace al azar,
+
+62
+00:03:50.859 --> 00:03:56.535
+y con probabilidad uno menos beta salta a cualquier página, elegida uniformemente.
+
+63
+00:03:56.535 --> 00:03:58.542
+Así sale de las spider traps.
+
+64
+00:03:58.892 --> 00:04:04.316
+Y desde un dead end, el surfista siempre se teletransporta, lo que tapa la fuga.
+
+65
+00:04:04.666 --> 00:04:07.247
+En forma matricial es la Google Matrix:
+
+66
+00:04:07.247 --> 00:04:11.218
+beta por M más uno menos beta por la matriz de unos entre N.
+
+67
+00:04:11.568 --> 00:04:15.097
+Esta matriz es estocástica, irreducible y aperiódica,
+
+68
+00:04:15.097 --> 00:04:20.024
+así que power iteration converge a un único vector desde cualquier inicio.
+
+69
+00:04:20.024 --> 00:04:23.486
+Si beta tiende a uno, vuelven a dominar las trampas;
+
+70
+00:04:23.486 --> 00:04:26.016
+si tiende a cero, todo queda uniforme.
+
+71
+00:04:26.816 --> 00:04:28.621
+¿Cómo se calcula a escala?
+
+72
+00:04:28.621 --> 00:04:34.107
+Con cincuenta mil millones de páginas, la matriz densa es imposible de guardar.
+
+73
+00:04:34.107 --> 00:04:40.704
+Pero es muy dispersa, unos diez enlaces por página, así que se guarda como lista de adyacencia:
+
+74
+00:04:40.704 --> 00:04:42.440
+origen, grado y destinos.
+
+75
+00:04:42.790 --> 00:04:48.795
+El vector r sí cabe en memoria, a ocho bytes por página, pero la lista de enlaces no.
+
+76
+00:04:48.795 --> 00:04:54.022
+Por eso se parte en franjas, o stripes, que se leen de disco una a la vez.
+
+77
+00:04:54.372 --> 00:04:55.303
+El algoritmo:
+
+78
+00:04:55.303 --> 00:05:02.108
+para cada stripe, para cada enlace de i a j, sumamos beta por r i entre d i al acumulador de j.
+
+79
+00:05:02.108 --> 00:05:08.196
+Y solo al terminar todos los stripes, sumamos uno menos beta entre N a cada posición.
+
+80
+00:05:08.546 --> 00:05:10.274
+Los dos errores típicos:
+
+81
+00:05:10.274 --> 00:05:13.514
+reiniciar el acumulador al cambiar de stripe,
+
+82
+00:05:13.514 --> 00:05:17.330
+o sumar el término del teletransporte en cada stripe.
+
+83
+00:05:17.330 --> 00:05:19.202
+Va una sola vez, al final.
+
+84
+00:05:20.002 --> 00:05:24.234
+En un clúster, como Spark o Pregel, cada iteración es un MapReduce:
+
+85
+00:05:24.234 --> 00:05:29.161
+el map emite, por cada arista, la contribución r i entre d i hacia el destino;
+
+86
+00:05:29.161 --> 00:05:33.898
+el shuffle agrupa por destino, y el reduce suma y aplica el teletransporte.
+
+87
+00:05:33.898 --> 00:05:39.394
+En un buscador, PageRank se precalcula offline y en la consulta es solo una búsqueda en
+
+88
+00:05:39.394 --> 00:05:41.794
+memoria para reordenar los candidatos.
+
+89
+00:05:42.144 --> 00:05:42.942
+Extensiones:
+
+90
+00:05:42.942 --> 00:05:47.793
+Topic-Specific PageRank restringe el teletransporte a páginas de un tema,
+
+91
+00:05:47.793 --> 00:05:49.920
+y así mide importancia por tema.
+
+92
+00:05:50.270 --> 00:05:56.630
+TrustRank teletransporta solo a páginas confiables, y sirve para combatir el spam de enlaces.
+
+93
+00:05:56.980 --> 00:06:01.919
+Y HITS distingue hubs, que apuntan a buenas autoridades, de authorities,
+
+94
+00:06:01.919 --> 00:06:04.252
+que son apuntadas por buenos hubs.
+
+95
+00:06:05.052 --> 00:06:05.621
+Resumen:
+
+96
+00:06:05.621 --> 00:06:10.172
+un enlace es un voto que se reparte entre los enlaces salientes.
+
+97
+00:06:10.172 --> 00:06:14.439
+La ecuación es r igual a M por r, con M columna-estocástica.
+
+98
+00:06:14.439 --> 00:06:18.492
+Se resuelve con power iteration desde el vector uniforme.
+
+99
+00:06:18.842 --> 00:06:22.922
+Los dead ends fugan importancia y las spider traps la absorben;
+
+100
+00:06:22.922 --> 00:06:25.642
+el teletransporte con beta resuelve ambos.
+
+101
+00:06:25.642 --> 00:06:31.730
+Y a escala, block-stripe, con el acumulador continuo y el término del teletransporte al final.
+
+102
+00:06:32.080 --> 00:06:37.686
+En el video práctico resolvemos todos estos cálculos a mano con números.
+
+103
+00:06:37.686 --> 00:06:38.776
+Nos vemos ahí.
+

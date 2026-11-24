@@ -1,0 +1,290 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:04.341
+En este video calculamos a mano una capa de GNN con el ejemplo de clase,
+
+2
+00:00:04.341 --> 00:00:09.888
+luego clasificamos el nodo con softmax y terminamos con la pérdida de predicción de enlaces.
+
+3
+00:00:10.988 --> 00:00:12.032
+El enunciado:
+
+4
+00:00:12.032 --> 00:00:17.895
+tenemos un grafo pequeño, y cada nodo tiene un vector de dos dimensiones.
+
+5
+00:00:17.895 --> 00:00:19.903
+El nodo uno es uno, cero;
+
+6
+00:00:19.903 --> 00:00:21.509
+el dos es cero, uno;
+
+7
+00:00:21.509 --> 00:00:23.276
+y el tres es uno, uno.
+
+8
+00:00:23.626 --> 00:00:31.205
+Las matrices son W, con filas uno menos dos y cero uno, y B, con filas uno cero y uno uno.
+
+9
+00:00:31.205 --> 00:00:33.058
+La activación es ReLU.
+
+10
+00:00:33.408 --> 00:00:34.298
+La capa es:
+
+11
+00:00:34.298 --> 00:00:39.720
+ReLU de W por el promedio de los vecinos, más B por el propio nodo.
+
+12
+00:00:40.070 --> 00:00:43.574
+Nos piden la nueva representación del nodo uno.
+
+13
+00:00:44.374 --> 00:00:45.051
+Paso uno:
+
+14
+00:00:45.051 --> 00:00:48.510
+los vecinos del nodo uno son el dos y el tres.
+
+15
+00:00:48.510 --> 00:00:54.526
+El cuatro está conectado al tres, pero no al uno, así que no entra en esta capa.
+
+16
+00:00:54.876 --> 00:00:58.464
+El mensaje del nodo dos es W por cero, uno.
+
+17
+00:00:58.464 --> 00:01:00.717
+Primera fila por el vector:
+
+18
+00:01:00.717 --> 00:01:04.555
+uno por cero más menos dos por uno, menos dos.
+
+19
+00:01:04.555 --> 00:01:05.640
+Segunda fila:
+
+20
+00:01:05.640 --> 00:01:08.560
+cero por cero más uno por uno, uno.
+
+21
+00:01:08.560 --> 00:01:10.980
+El mensaje es menos dos, uno.
+
+22
+00:01:11.330 --> 00:01:15.096
+El mensaje del nodo tres es W por uno, uno:
+
+23
+00:01:15.096 --> 00:01:17.286
+uno menos dos, menos uno;
+
+24
+00:01:17.286 --> 00:01:19.038
+y cero más uno, uno.
+
+25
+00:01:19.038 --> 00:01:21.578
+El mensaje es menos uno, uno.
+
+26
+00:01:21.928 --> 00:01:22.534
+Recuerda:
+
+27
+00:01:22.534 --> 00:01:27.184
+cada componente del resultado es una fila de la matriz por el vector.
+
+28
+00:01:27.984 --> 00:01:28.808
+Paso dos:
+
+29
+00:01:28.808 --> 00:01:31.187
+agregamos con el promedio.
+
+30
+00:01:31.187 --> 00:01:34.391
+Menos dos más menos uno, entre dos:
+
+31
+00:01:34.391 --> 00:01:36.404
+menos uno punto cinco.
+
+32
+00:01:36.404 --> 00:01:38.418
+Uno más uno entre dos:
+
+33
+00:01:38.418 --> 00:01:38.784
+uno.
+
+34
+00:01:39.134 --> 00:01:44.502
+El término propio es B por el vector del nodo uno, uno, cero:
+
+35
+00:01:44.502 --> 00:01:46.086
+primera fila, uno;
+
+36
+00:01:46.086 --> 00:01:48.902
+segunda fila, uno más cero, uno.
+
+37
+00:01:48.902 --> 00:01:49.958
+Da uno, uno.
+
+38
+00:01:50.308 --> 00:01:50.991
+Sumamos:
+
+39
+00:01:50.991 --> 00:01:55.599
+menos uno punto cinco más uno, menos cero punto cinco;
+
+40
+00:01:55.599 --> 00:01:57.220
+y uno más uno, dos.
+
+41
+00:01:57.570 --> 00:01:58.869
+Aplicamos ReLU:
+
+42
+00:01:58.869 --> 00:02:01.208
+el negativo se vuelve cero.
+
+43
+00:02:01.208 --> 00:02:05.538
+La nueva representación del nodo uno es cero, dos.
+
+44
+00:02:05.888 --> 00:02:08.875
+Coincide con el ejemplo de la clase.
+
+45
+00:02:08.875 --> 00:02:11.365
+ReLU solo corta los negativos;
+
+46
+00:02:11.365 --> 00:02:13.688
+los positivos pasan iguales.
+
+47
+00:02:14.488 --> 00:02:15.238
+Paso tres:
+
+48
+00:02:15.238 --> 00:02:16.663
+clasificar el nodo.
+
+49
+00:02:16.663 --> 00:02:23.488
+Multiplicamos el embedding cero, dos por una matriz de salida de tres filas, una por clase.
+
+50
+00:02:23.838 --> 00:02:25.543
+Los puntajes son:
+
+51
+00:02:25.543 --> 00:02:27.750
+cero, dos y menos dos.
+
+52
+00:02:28.100 --> 00:02:29.188
+Exponenciamos:
+
+53
+00:02:29.188 --> 00:02:33.926
+uno, siete punto tres ocho nueve y cero punto uno tres cinco.
+
+54
+00:02:33.926 --> 00:02:36.956
+La suma es ocho punto cinco dos cuatro.
+
+55
+00:02:37.306 --> 00:02:39.640
+Dividimos cada uno entre la suma:
+
+56
+00:02:39.640 --> 00:02:45.298
+cero punto uno uno siete, cero punto ocho seis siete y cero punto cero uno seis.
+
+57
+00:02:45.648 --> 00:02:49.281
+La clase predicha es la de mayor probabilidad, la dos.
+
+58
+00:02:49.281 --> 00:02:55.336
+Si esa es la clase real, la entropía cruzada es menos el logaritmo de cero punto ocho seis
+
+59
+00:02:55.336 --> 00:02:57.624
+siete, cero punto uno cuatro tres.
+
+60
+00:02:58.424 --> 00:02:59.301
+Paso cuatro:
+
+61
+00:02:59.301 --> 00:03:04.712
+predicción de enlaces entre dos nodos con embeddings cero, dos y uno, uno.
+
+62
+00:03:05.062 --> 00:03:07.980
+El puntaje es el producto punto:
+
+63
+00:03:07.980 --> 00:03:09.622
+cero más dos, dos.
+
+64
+00:03:09.972 --> 00:03:13.507
+La probabilidad de arista es la sigmoide de dos:
+
+65
+00:03:13.507 --> 00:03:15.348
+cero punto ocho ocho uno.
+
+66
+00:03:15.698 --> 00:03:21.374
+Si la arista es real, la pérdida es menos el logaritmo de cero punto ocho ocho uno,
+
+67
+00:03:21.374 --> 00:03:23.084
+cero punto uno dos siete.
+
+68
+00:03:23.084 --> 00:03:28.145
+Si no existe, es menos el logaritmo de uno menos cero punto ocho ocho uno,
+
+69
+00:03:28.145 --> 00:03:29.786
+dos punto uno dos siete.
+
+70
+00:03:30.136 --> 00:03:35.597
+La pérdida es baja cuando el modelo acierta y grande cuando se equivoca con confianza.
+
+71
+00:03:35.597 --> 00:03:38.010
+Con esto cubres los ejercicios de GNN;
+
+72
+00:03:38.010 --> 00:03:41.248
+practica con números nuevos en la sección Práctica.
+

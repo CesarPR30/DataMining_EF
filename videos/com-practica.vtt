@@ -1,0 +1,478 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:05.510
+En este video resolvemos las dos preguntas de tres puntos del examen dos mil veintiséis uno:
+
+2
+00:00:05.510 --> 00:00:09.223
+edge betweenness con propagación de crédito desde A y desde G,
+
+3
+00:00:09.223 --> 00:00:11.320
+y la fase de agregación de Louvain.
+
+4
+00:00:11.320 --> 00:00:13.416
+En medio calculamos la modularidad.
+
+5
+00:00:14.516 --> 00:00:15.367
+El enunciado:
+
+6
+00:00:15.367 --> 00:00:18.380
+dado este grafo de siete nodos y diez aristas,
+
+7
+00:00:18.380 --> 00:00:23.161
+aplicar propagación de crédito con BFS para calcular el edge betweenness,
+
+8
+00:00:23.161 --> 00:00:25.388
+pero solo desde las fuentes A y G.
+
+9
+00:00:25.738 --> 00:00:29.531
+Hay que mostrar el árbol BFS, la propagación de crédito,
+
+10
+00:00:29.531 --> 00:00:32.986
+el aporte de cada fuente y el acumulado por arista.
+
+11
+00:00:33.336 --> 00:00:36.792
+Y al final indicar cuáles son las aristas puente.
+
+12
+00:00:37.592 --> 00:00:38.486
+Paso uno:
+
+13
+00:00:38.486 --> 00:00:39.977
+el BFS desde A.
+
+14
+00:00:39.977 --> 00:00:44.648
+A está en el nivel cero, con sigma igual a uno.
+
+15
+00:00:44.998 --> 00:00:51.598
+En el nivel uno están sus vecinos B y C, cada uno con un único camino más corto, sigma uno.
+
+16
+00:00:51.948 --> 00:00:53.347
+En el nivel dos:
+
+17
+00:00:53.347 --> 00:00:58.941
+D tiene dos padres, B y C, así que su sigma es uno más uno, dos.
+
+18
+00:00:58.941 --> 00:01:01.826
+E y F solo tienen a C como padre:
+
+19
+00:01:01.826 --> 00:01:02.700
+sigma uno.
+
+20
+00:01:03.050 --> 00:01:07.015
+En el nivel tres está G, con dos padres, E y F:
+
+21
+00:01:07.015 --> 00:01:07.859
+sigma dos.
+
+22
+00:01:07.859 --> 00:01:11.993
+Las aristas B C y E F unen nodos del mismo nivel;
+
+23
+00:01:11.993 --> 00:01:14.018
+las dibujamos punteadas.
+
+24
+00:01:14.818 --> 00:01:15.566
+Paso dos:
+
+25
+00:01:15.566 --> 00:01:18.975
+propagamos crédito de abajo hacia arriba.
+
+26
+00:01:18.975 --> 00:01:21.802
+Cada nodo empieza con crédito uno.
+
+27
+00:01:22.152 --> 00:01:26.184
+Las hojas, G y D, tienen crédito uno.
+
+28
+00:01:26.534 --> 00:01:31.278
+G reparte su crédito entre sus padres E y F, en proporción a sus sigma:
+
+29
+00:01:31.278 --> 00:01:34.886
+uno por uno entre dos, cero punto cinco a cada arista.
+
+30
+00:01:35.236 --> 00:01:38.827
+E tiene uno propio más cero punto cinco recibido:
+
+31
+00:01:38.827 --> 00:01:43.664
+uno punto cinco, y lo pasa entero a C, porque C es su único padre.
+
+32
+00:01:43.664 --> 00:01:44.250
+Igual F:
+
+33
+00:01:44.250 --> 00:01:47.548
+la arista C F también recibe uno punto cinco.
+
+34
+00:01:47.898 --> 00:01:50.915
+D reparte su crédito uno entre B y C:
+
+35
+00:01:50.915 --> 00:01:53.442
+cero punto cinco a cada arista.
+
+36
+00:01:53.792 --> 00:02:00.079
+C acumula uno, más uno punto cinco de E, más uno punto cinco de F, más cero punto cinco de D:
+
+37
+00:02:00.079 --> 00:02:02.986
+cuatro punto cinco, que va a la arista A C.
+
+38
+00:02:02.986 --> 00:02:05.217
+B tiene uno más cero punto cinco:
+
+39
+00:02:05.217 --> 00:02:07.448
+uno punto cinco, a la arista A B.
+
+40
+00:02:07.798 --> 00:02:12.646
+Y las aristas B C y E F, del mismo nivel, reciben cero.
+
+41
+00:02:13.446 --> 00:02:14.393
+Paso tres:
+
+42
+00:02:14.393 --> 00:02:16.099
+repetimos desde G.
+
+43
+00:02:16.099 --> 00:02:17.046
+Nivel uno:
+
+44
+00:02:17.046 --> 00:02:17.614
+E y F.
+
+45
+00:02:17.614 --> 00:02:18.562
+Nivel dos:
+
+46
+00:02:18.562 --> 00:02:21.309
+C, con dos padres, sigma dos.
+
+47
+00:02:21.309 --> 00:02:22.351
+Nivel tres:
+
+48
+00:02:22.351 --> 00:02:27.846
+A, B y D, cada uno con padre C, así que heredan sigma dos.
+
+49
+00:02:28.196 --> 00:02:34.508
+Las hojas A, B y D tienen crédito uno y lo pasan entero a C, porque C es su único padre.
+
+50
+00:02:34.858 --> 00:02:36.892
+C acumula uno más tres:
+
+51
+00:02:36.892 --> 00:02:37.511
+cuatro.
+
+52
+00:02:37.511 --> 00:02:41.932
+Lo reparte entre E y F, que tienen el mismo sigma:
+
+53
+00:02:41.932 --> 00:02:43.258
+dos a cada una.
+
+54
+00:02:43.608 --> 00:02:46.029
+E y F quedan con uno más dos:
+
+55
+00:02:46.029 --> 00:02:49.368
+tres, que pasan a las aristas E G y F G.
+
+56
+00:02:49.718 --> 00:02:55.862
+Las aristas A B, B D y E F unen nodos del mismo nivel, así que reciben cero.
+
+57
+00:02:56.662 --> 00:02:57.541
+Paso cuatro:
+
+58
+00:02:57.541 --> 00:03:01.202
+sumamos los aportes de las dos fuentes por arista.
+
+59
+00:03:01.202 --> 00:03:06.034
+Por ejemplo, A C es cuatro punto cinco más uno, cinco punto cinco;
+
+60
+00:03:06.034 --> 00:03:09.622
+C E es uno punto cinco más dos, tres punto cinco.
+
+61
+00:03:09.972 --> 00:03:12.392
+Las aristas puente son C E y C F:
+
+62
+00:03:12.392 --> 00:03:16.644
+son las que unen el bloque A B C D con el triángulo E F G.
+
+63
+00:03:16.994 --> 00:03:18.539
+Cuidado con la trampa:
+
+64
+00:03:18.539 --> 00:03:23.386
+A C tiene la suma más alta, pero solo porque A es una de las fuentes.
+
+65
+00:03:23.386 --> 00:03:29.076
+Si calcularas desde todos los nodos y dividieras entre dos, C E y C F valen seis,
+
+66
+00:03:29.076 --> 00:03:30.480
+el máximo del grafo.
+
+67
+00:03:30.480 --> 00:03:33.290
+Esa es la justificación que suma puntos.
+
+68
+00:03:33.640 --> 00:03:38.995
+Con solo dos fuentes, reporta la suma tal cual y menciona que con todas las fuentes se
+
+69
+00:03:38.995 --> 00:03:40.240
+dividiría entre dos.
+
+70
+00:03:41.040 --> 00:03:41.518
+Bonus:
+
+71
+00:03:41.518 --> 00:03:45.657
+la modularidad de esta partición en dos comunidades.
+
+72
+00:03:45.657 --> 00:03:50.592
+Necesitamos m, que es diez aristas, y los grados de cada nodo.
+
+73
+00:03:50.942 --> 00:03:56.999
+La comunidad azul tiene cinco aristas internas, A B, A C, B C, B D y C D,
+
+74
+00:03:56.999 --> 00:03:59.654
+y la suma de sus grados es doce.
+
+75
+00:04:00.004 --> 00:04:04.300
+La naranja tiene tres aristas internas y suma de grados ocho.
+
+76
+00:04:04.650 --> 00:04:07.939
+Q es cinco décimos menos doce veinteavos al cuadrado,
+
+77
+00:04:07.939 --> 00:04:11.104
+más tres décimos menos ocho veinteavos al cuadrado:
+
+78
+00:04:11.104 --> 00:04:15.138
+cero punto catorce más cero punto catorce, cero punto veintiocho.
+
+79
+00:04:15.488 --> 00:04:16.267
+La trampa:
+
+80
+00:04:16.267 --> 00:04:21.251
+la suma de grados incluye las aristas que salen de la comunidad.
+
+81
+00:04:21.251 --> 00:04:23.120
+C aporta cinco, no tres.
+
+82
+00:04:23.920 --> 00:04:26.309
+Segunda pregunta de tres puntos:
+
+83
+00:04:26.309 --> 00:04:26.906
+Louvain.
+
+84
+00:04:26.906 --> 00:04:32.056
+La fase de movimiento local ya terminó y cada color es una comunidad.
+
+85
+00:04:32.406 --> 00:04:36.992
+Nos piden la fase de agregación y continuar hasta el grafo del segundo nivel,
+
+86
+00:04:36.992 --> 00:04:38.838
+con los supernodos y los pesos.
+
+87
+00:04:39.188 --> 00:04:40.708
+Las comunidades son:
+
+88
+00:04:40.708 --> 00:04:46.028
+azul con cinco nodos, naranja con tres, verde con seis y rosa con dos.
+
+89
+00:04:46.828 --> 00:04:51.288
+Primero, contamos las aristas internas de cada comunidad.
+
+90
+00:04:51.288 --> 00:04:55.434
+Azul tiene siete, naranja dos, verde ocho y rosa una.
+
+91
+00:04:55.434 --> 00:04:59.894
+Con la convención del examen, el auto-lazo vale el doble:
+
+92
+00:04:59.894 --> 00:05:02.476
+catorce, cuatro, dieciséis y dos.
+
+93
+00:05:02.826 --> 00:05:09.315
+Luego contamos las aristas que cruzan entre cada par de comunidades.
+
+94
+00:05:09.315 --> 00:05:10.937
+Azul con naranja:
+
+95
+00:05:10.937 --> 00:05:11.605
+cuatro.
+
+96
+00:05:11.605 --> 00:05:13.036
+Azul con verde:
+
+97
+00:05:13.036 --> 00:05:13.418
+una.
+
+98
+00:05:13.418 --> 00:05:14.754
+Azul con rosa:
+
+99
+00:05:14.754 --> 00:05:15.135
+una.
+
+100
+00:05:15.135 --> 00:05:16.757
+Naranja con rosa:
+
+101
+00:05:16.757 --> 00:05:17.139
+una.
+
+102
+00:05:17.139 --> 00:05:18.570
+Verde con rosa:
+
+103
+00:05:18.570 --> 00:05:19.047
+tres.
+
+104
+00:05:19.047 --> 00:05:22.578
+Y naranja con verde no tiene ninguna.
+
+105
+00:05:22.928 --> 00:05:25.226
+Ese es el grafo del primer nivel:
+
+106
+00:05:25.226 --> 00:05:29.264
+cuatro supernodos con sus auto-lazos y aristas ponderadas.
+
+107
+00:05:30.064 --> 00:05:35.152
+En el segundo nivel, la fase local une azul con naranja y verde con rosa.
+
+108
+00:05:35.502 --> 00:05:40.757
+El auto-lazo de azul más naranja es catorce más cuatro, más dos veces cuatro,
+
+109
+00:05:40.757 --> 00:05:45.193
+porque la arista que los unía ahora es interna y se cuenta doble.
+
+110
+00:05:45.193 --> 00:05:46.422
+Total, veintiséis.
+
+111
+00:05:46.772 --> 00:05:48.370
+El de verde más rosa:
+
+112
+00:05:48.370 --> 00:05:52.100
+dieciséis más dos más dos por tres, veinticuatro.
+
+113
+00:05:52.450 --> 00:05:57.314
+Y el peso entre los dos nuevos supernodos suma las aristas que cruzan:
+
+114
+00:05:57.314 --> 00:06:01.762
+azul verde, azul rosa y naranja rosa, uno más uno más uno, tres.
+
+115
+00:06:02.112 --> 00:06:03.354
+Siempre verifica:
+
+116
+00:06:03.354 --> 00:06:09.634
+la suma de auto-lazos más dos veces la suma de pesos debe dar dos m, cincuenta y seis,
+
+117
+00:06:09.634 --> 00:06:11.168
+en todos los niveles.
+
+118
+00:06:11.168 --> 00:06:12.044
+Aquí cuadra.
+
+119
+00:06:12.044 --> 00:06:15.696
+Practica con grafos nuevos en la sección Práctica.
+

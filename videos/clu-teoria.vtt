@@ -1,0 +1,274 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:04.317
+En este video vemos BFR, el algoritmo de Bradley, Fayyad y Reina.
+
+2
+00:00:04.317 --> 00:00:08.435
+Es una variante de k-means para datos que no caben en memoria.
+
+3
+00:00:08.435 --> 00:00:10.627
+Es de la primera parte del curso,
+
+4
+00:00:10.627 --> 00:00:15.077
+pero vino como caso de estudio en el examen dos mil veintiséis uno,
+
+5
+00:00:15.077 --> 00:00:17.136
+así que vale la pena dominarlo.
+
+6
+00:00:18.236 --> 00:00:19.563
+BFR asume dos cosas:
+
+7
+00:00:19.563 --> 00:00:25.798
+que el espacio es euclidiano, y que cada cluster sigue una distribución normal alrededor de su
+
+8
+00:00:25.798 --> 00:00:28.518
+centroide con dimensiones independientes.
+
+9
+00:00:28.518 --> 00:00:32.366
+Es decir, los clusters son elipses alineadas con los ejes.
+
+10
+00:00:32.366 --> 00:00:35.948
+Los datos se leen por bloques que sí caben en memoria.
+
+11
+00:00:36.298 --> 00:00:39.441
+Cada punto termina en uno de tres conjuntos.
+
+12
+00:00:39.441 --> 00:00:40.513
+El Discard Set:
+
+13
+00:00:40.513 --> 00:00:43.727
+puntos suficientemente cerca de un centroide.
+
+14
+00:00:43.727 --> 00:00:48.442
+Se agregan al resumen de ese cluster y se descartan de la memoria.
+
+15
+00:00:48.792 --> 00:00:50.139
+El Compression Set:
+
+16
+00:00:50.139 --> 00:00:55.313
+grupitos de puntos cercanos entre sí, pero lejos de todos los centroides.
+
+17
+00:00:55.313 --> 00:00:59.424
+Se resumen como mini-clusters, pero todavía no se asignan.
+
+18
+00:00:59.774 --> 00:01:01.046
+Y el Retained Set:
+
+19
+00:01:01.046 --> 00:01:04.790
+puntos aislados que se guardan tal cual, a la espera.
+
+20
+00:01:05.590 --> 00:01:11.066
+Cada cluster no guarda sus puntos, guarda un resumen de dos d más uno números:
+
+21
+00:01:11.066 --> 00:01:12.821
+N, la cantidad de puntos;
+
+22
+00:01:12.821 --> 00:01:14.717
+SUM, la suma por dimensión;
+
+23
+00:01:14.717 --> 00:01:17.806
+y SUMSQ, la suma de cuadrados por dimensión.
+
+24
+00:01:18.156 --> 00:01:20.820
+El centroide es SUM entre N.
+
+25
+00:01:21.170 --> 00:01:26.066
+Y la varianza por dimensión es SUMSQ entre N menos el centroide al cuadrado.
+
+26
+00:01:26.416 --> 00:01:28.387
+La clave es que son aditivos:
+
+27
+00:01:28.387 --> 00:01:33.551
+agregar un punto o fusionar dos clusters es simplemente sumar sus resúmenes.
+
+28
+00:01:33.551 --> 00:01:37.696
+Esa propiedad es la que hace a BFR eficiente y paralelizable.
+
+29
+00:01:38.496 --> 00:01:43.494
+Para decidir si un punto está cerca de un cluster se usa la distancia de Mahalanobis:
+
+30
+00:01:43.494 --> 00:01:48.787
+para cada dimensión, la diferencia con el centroide dividida entre la desviación estándar,
+
+31
+00:01:48.787 --> 00:01:50.904
+al cuadrado, se suma y se saca raíz.
+
+32
+00:01:51.254 --> 00:01:53.725
+Es una distancia euclidiana normalizada:
+
+33
+00:01:53.725 --> 00:01:58.790
+un cluster muy disperso en una dimensión acepta puntos más lejos en esa dimensión.
+
+34
+00:01:59.140 --> 00:02:03.824
+El umbral se expresa en desviaciones estándar, típicamente dos o tres.
+
+35
+00:02:03.824 --> 00:02:09.244
+Si la distancia es menor al umbral, el punto entra al Discard Set de ese cluster.
+
+36
+00:02:10.044 --> 00:02:11.440
+El algoritmo completo:
+
+37
+00:02:11.440 --> 00:02:16.453
+primero se inicializan k centroides, por ejemplo con k-means sobre una muestra.
+
+38
+00:02:16.453 --> 00:02:18.547
+Luego, para cada bloque de datos:
+
+39
+00:02:18.547 --> 00:02:23.433
+los puntos con Mahalanobis menor al umbral van al Discard Set y se descartan,
+
+40
+00:02:23.433 --> 00:02:24.956
+actualizando el resumen.
+
+41
+00:02:24.956 --> 00:02:29.462
+Los puntos restantes, junto con el Retained Set, se agrupan en memoria:
+
+42
+00:02:29.462 --> 00:02:34.348
+los grupos compactos pasan al Compression Set y los aislados al Retained Set.
+
+43
+00:02:34.348 --> 00:02:39.615
+Se fusionan mini-clusters del Compression Set cuando la varianza combinada es baja.
+
+44
+00:02:39.615 --> 00:02:45.516
+Al final, lo que quede en CS y RS se asigna al centroide más cercano o se trata como outlier.
+
+45
+00:02:45.866 --> 00:02:50.710
+En el examen dos mil veintiséis uno te pidieron exactamente este pseudocódigo,
+
+46
+00:02:50.710 --> 00:02:54.002
+más cómo paralelizarlo en un clúster de N servidores.
+
+47
+00:02:54.802 --> 00:02:56.552
+¿Por qué es eficiente?
+
+48
+00:02:56.552 --> 00:03:01.882
+Primero, hace una sola pasada sobre los datos, leyendo por bloques.
+
+49
+00:03:02.232 --> 00:03:06.724
+Segundo, la memoria es del orden de k por d más lo que haya en CS y RS,
+
+50
+00:03:06.724 --> 00:03:11.976
+sin importar cuántos puntos haya en total, porque los del Discard Set se descartan.
+
+51
+00:03:12.326 --> 00:03:17.366
+Tercero, actualizar un cluster es sumar, cuesta d operaciones por punto.
+
+52
+00:03:17.716 --> 00:03:19.590
+Y se paraleliza naturalmente:
+
+53
+00:03:19.590 --> 00:03:25.083
+cada servidor procesa su partición con los mismos centroides y produce sus resúmenes.
+
+54
+00:03:25.083 --> 00:03:29.412
+Un reducer suma los resúmenes del mismo cluster, como en MapReduce,
+
+55
+00:03:29.412 --> 00:03:33.936
+fusiona los mini-clusters compatibles y resuelve los puntos retenidos.
+
+56
+00:03:33.936 --> 00:03:37.684
+Por la red solo viajan resúmenes, nunca los puntos crudos.
+
+57
+00:03:38.484 --> 00:03:39.576
+Sus limitaciones:
+
+58
+00:03:39.576 --> 00:03:42.790
+supone clusters normales y alineados con los ejes,
+
+59
+00:03:42.790 --> 00:03:47.095
+así que falla con formas arbitrarias o dimensiones correlacionadas,
+
+60
+00:03:47.095 --> 00:03:49.987
+y depende de los centroides iniciales y de k.
+
+61
+00:03:49.987 --> 00:03:54.228
+Para formas arbitrarias está CURE, que usa puntos representativos.
+
+62
+00:03:54.578 --> 00:03:55.254
+Resumen:
+
+63
+00:03:55.254 --> 00:03:59.308
+tres conjuntos, Discard, Compression y Retained.
+
+64
+00:03:59.308 --> 00:04:02.433
+Un resumen aditivo de N, SUM y SUMSQ.
+
+65
+00:04:02.433 --> 00:04:05.642
+Asignación por Mahalanobis con umbral.
+
+66
+00:04:05.992 --> 00:04:10.416
+Y es eficiente porque hace una pasada, su memoria no depende de n,
+
+67
+00:04:10.416 --> 00:04:12.695
+y se paraleliza sumando resúmenes.
+
+68
+00:04:12.695 --> 00:04:17.656
+En el video práctico hacemos los cálculos y armamos la respuesta del caso.
+

@@ -1,0 +1,262 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:03.350
+En este video resolvemos juntos un caso de estudio real:
+
+2
+00:00:03.350 --> 00:00:07.896
+el de accidentes en intersecciones viales del examen dos mil veintiséis uno.
+
+3
+00:00:07.896 --> 00:00:12.024
+Lo armamos bloque por bloque y al final lo comparamos con la rúbrica.
+
+4
+00:00:13.124 --> 00:00:15.821
+Primero, leer el enunciado buscando pistas.
+
+5
+00:00:15.821 --> 00:00:21.529
+Una municipalidad quiere predecir qué intersecciones tienen más probabilidad de accidentes,
+
+6
+00:00:21.529 --> 00:00:25.292
+sabiendo que estos se concentran en intersecciones cercanas.
+
+7
+00:00:25.642 --> 00:00:26.582
+Primera pista:
+
+8
+00:00:26.582 --> 00:00:29.336
+se concentran en intersecciones cercanas.
+
+9
+00:00:29.336 --> 00:00:31.217
+Eso es dependencia espacial:
+
+10
+00:00:31.217 --> 00:00:36.658
+la relación entre intersecciones es parte de la señal, así que conviene un grafo.
+
+11
+00:00:37.008 --> 00:00:38.053
+Segunda pista:
+
+12
+00:00:38.053 --> 00:00:40.142
+predecir qué intersecciones.
+
+13
+00:00:40.142 --> 00:00:42.305
+Es una tarea a nivel de nodo:
+
+14
+00:00:42.305 --> 00:00:47.304
+clasificación si es accidente sí o no, o regresión si es un conteo.
+
+15
+00:00:47.654 --> 00:00:48.794
+Tercera pista:
+
+16
+00:00:48.794 --> 00:00:50.992
+millones de intersecciones.
+
+17
+00:00:50.992 --> 00:00:54.086
+Habrá que justificar la escalabilidad.
+
+18
+00:00:54.886 --> 00:00:55.657
+Bloque uno:
+
+19
+00:00:55.657 --> 00:00:58.110
+la tarea es clasificación de nodos.
+
+20
+00:00:58.110 --> 00:01:03.648
+Para cada intersección, predecir si habrá un accidente en el siguiente periodo,
+
+21
+00:01:03.648 --> 00:01:05.470
+o el número de accidentes.
+
+22
+00:01:05.820 --> 00:01:06.622
+Bloque dos:
+
+23
+00:01:06.622 --> 00:01:09.973
+la representación es un grafo intrínseco vial.
+
+24
+00:01:09.973 --> 00:01:14.491
+Cada nodo es una intersección y cada arista un tramo de calle,
+
+25
+00:01:14.491 --> 00:01:16.968
+con peso según longitud o tráfico.
+
+26
+00:01:16.968 --> 00:01:21.486
+Opcionalmente se añaden aristas k-NN por distancia geográfica.
+
+27
+00:01:21.486 --> 00:01:23.526
+Y cada nodo tiene atributos:
+
+28
+00:01:23.526 --> 00:01:30.157
+accidentes históricos, flujo vehicular, carriles, semáforos, velocidad límite, iluminación,
+
+29
+00:01:30.157 --> 00:01:32.124
+cercanía a colegios, clima.
+
+30
+00:01:32.924 --> 00:01:34.421
+Bloque tres, el pipeline:
+
+31
+00:01:34.421 --> 00:01:37.056
+ingesta del historial, datos viales y clima;
+
+32
+00:01:37.056 --> 00:01:40.889
+construcción del grafo y de los atributos por ventana de tiempo;
+
+33
+00:01:40.889 --> 00:01:45.680
+la etiqueta es si hubo accidente en el periodo siguiente, con un split temporal,
+
+34
+00:01:45.680 --> 00:01:48.735
+entrenando con el pasado y validando con el futuro;
+
+35
+00:01:48.735 --> 00:01:52.388
+y finalmente el modelo, la evaluación y un ranking de riesgo.
+
+36
+00:01:52.738 --> 00:01:54.757
+Bloque cuatro, los algoritmos.
+
+37
+00:01:54.757 --> 00:01:57.919
+El modelo principal es una GNN, como GraphSAGE:
+
+38
+00:01:57.919 --> 00:02:02.091
+cada capa agrega la información de las intersecciones vecinas,
+
+39
+00:02:02.091 --> 00:02:08.349
+capturando justamente el contagio espacial que observó la municipalidad, y usa los atributos.
+
+40
+00:02:08.349 --> 00:02:14.069
+Además, Louvain sobre el grafo ponderado por accidentes para detectar zonas críticas,
+
+41
+00:02:14.069 --> 00:02:17.568
+y PageRank o betweenness para puntos de mucho flujo.
+
+42
+00:02:17.568 --> 00:02:21.874
+Como baseline, node2vec con q menor que uno más un clasificador.
+
+43
+00:02:22.674 --> 00:02:24.237
+Bloque cinco, evaluación:
+
+44
+00:02:24.237 --> 00:02:27.737
+AUC o PR-AUC, porque los accidentes son poco frecuentes;
+
+45
+00:02:27.737 --> 00:02:31.987
+recall en el top k, que es lo que la municipalidad puede intervenir;
+
+46
+00:02:31.987 --> 00:02:37.050
+y comparar contra un modelo tabular sin grafo para demostrar que el grafo aporta.
+
+47
+00:02:37.400 --> 00:02:39.139
+Bloque seis, escalabilidad:
+
+48
+00:02:39.139 --> 00:02:44.035
+el grafo vial es muy disperso, cada intersección tiene tres o cuatro calles,
+
+49
+00:02:44.035 --> 00:02:46.483
+así que cabe como lista de adyacencia.
+
+50
+00:02:46.483 --> 00:02:51.315
+GraphSAGE entrena con mini-batches y un número fijo de vecinos muestreados,
+
+51
+00:02:51.315 --> 00:02:54.214
+así que el costo no depende del tamaño total.
+
+52
+00:02:54.214 --> 00:02:58.723
+Se particiona por distritos con Spark o PyTorch Geometric distribuido,
+
+53
+00:02:58.723 --> 00:03:03.104
+Louvain es casi n log n, y la inferencia corre por lotes cada noche.
+
+54
+00:03:03.904 --> 00:03:05.931
+Ahora comparamos con la rúbrica.
+
+55
+00:03:05.931 --> 00:03:11.760
+Medio punto por representar la ciudad como grafo y justificarlo por la dependencia espacial:
+
+56
+00:03:11.760 --> 00:03:14.104
+lo cubrimos en los bloques uno y dos.
+
+57
+00:03:14.454 --> 00:03:19.142
+Cero punto cuatro por el pipeline completo con split temporal y evaluación:
+
+58
+00:03:19.142 --> 00:03:20.454
+bloques tres y cinco.
+
+59
+00:03:20.804 --> 00:03:24.817
+Cero punto seis por algoritmos adecuados y justificados:
+
+60
+00:03:24.817 --> 00:03:25.820
+bloque cuatro.
+
+61
+00:03:26.170 --> 00:03:28.976
+Y medio punto por la escalabilidad:
+
+62
+00:03:28.976 --> 00:03:29.938
+bloque seis.
+
+63
+00:03:30.288 --> 00:03:33.473
+La estructura de seis bloques cubre toda la rúbrica.
+
+64
+00:03:33.473 --> 00:03:37.087
+Practica con el banco de casos de la sección Cómo resolver,
+
+65
+00:03:37.087 --> 00:03:40.824
+y escribe tus respuestas en el Simulacro para autocorregirte.
+

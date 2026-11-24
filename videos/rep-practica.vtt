@@ -1,0 +1,358 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:03.772
+En este video resolvemos los ejercicios de representaciones:
+
+2
+00:00:03.772 --> 00:00:09.179
+dimensiones y dispersión de una codificación, un grafo k-NN, una caminata de node2vec,
+
+3
+00:00:09.179 --> 00:00:12.888
+los pares del skip-gram y la pérdida con muestreo negativo.
+
+4
+00:00:13.988 --> 00:00:15.023
+Ejercicio uno.
+
+5
+00:00:15.023 --> 00:00:20.422
+Una película se codifica con el proveedor en one-hot, de cuatro opciones;
+
+6
+00:00:20.422 --> 00:00:23.380
+los géneros en multi-hot, de veintiocho;
+
+7
+00:00:23.380 --> 00:00:25.080
+más el año y el rating.
+
+8
+00:00:25.080 --> 00:00:28.556
+Esta película es de Netflix, de acción y drama.
+
+9
+00:00:28.906 --> 00:00:31.606
+Las dimensiones son la suma de cada bloque:
+
+10
+00:00:31.606 --> 00:00:35.122
+cuatro más veintiocho más uno más uno, treinta y cuatro.
+
+11
+00:00:35.472 --> 00:00:37.879
+Los valores distintos de cero son:
+
+12
+00:00:37.879 --> 00:00:42.127
+uno del proveedor, dos de los géneros, y el año y el rating:
+
+13
+00:00:42.127 --> 00:00:42.552
+cinco.
+
+14
+00:00:42.902 --> 00:00:46.868
+La dispersión es uno menos cinco entre treinta y cuatro:
+
+15
+00:00:46.868 --> 00:00:48.781
+cero punto ocho cinco tres.
+
+16
+00:00:48.781 --> 00:00:51.614
+El ochenta y cinco por ciento son ceros.
+
+17
+00:00:51.964 --> 00:00:52.616
+La receta:
+
+18
+00:00:52.616 --> 00:00:57.700
+sumar las dimensiones de los bloques y calcular uno menos activos entre total.
+
+19
+00:00:58.500 --> 00:00:59.636
+Ejercicio dos:
+
+20
+00:00:59.636 --> 00:01:05.724
+construir el grafo uno-NN, versión unión, con cinco puntos sobre una recta.
+
+21
+00:01:06.074 --> 00:01:10.266
+Para cada punto buscamos su vecino más cercano.
+
+22
+00:01:10.266 --> 00:01:12.674
+A elige a B, y B elige a A.
+
+23
+00:01:13.024 --> 00:01:17.632
+C está a distancia dos de B y tres de D, así que elige a B.
+
+24
+00:01:17.982 --> 00:01:20.694
+D y E se eligen mutuamente.
+
+25
+00:01:21.044 --> 00:01:24.970
+En la versión unión basta que uno elija al otro.
+
+26
+00:01:24.970 --> 00:01:27.506
+Las aristas son A B, B C y D E:
+
+27
+00:01:27.506 --> 00:01:31.268
+tres aristas, sin contar dos veces A B ni D E.
+
+28
+00:01:31.618 --> 00:01:34.622
+Fíjate que B tiene grado dos, más que k.
+
+29
+00:01:34.622 --> 00:01:39.579
+Eso pasa porque la relación de vecino más cercano no es simétrica:
+
+30
+00:01:39.579 --> 00:01:42.058
+C elige a B, pero B no elige a C.
+
+31
+00:01:42.858 --> 00:01:43.907
+Ejercicio tres:
+
+32
+00:01:43.907 --> 00:01:47.824
+generar una caminata de node2vec de cinco nodos desde A,
+
+33
+00:01:47.824 --> 00:01:51.322
+con p igual a cuatro y q igual a cero punto cinco.
+
+34
+00:01:51.322 --> 00:01:53.071
+Usamos la regla de clase:
+
+35
+00:01:53.071 --> 00:01:56.778
+elegir el mayor alfa, y en empate, la menor etiqueta.
+
+36
+00:01:57.128 --> 00:02:01.926
+El primer paso no tiene nodo anterior, así que vamos al menor vecino:
+
+37
+00:02:01.926 --> 00:02:02.552
+de A a B.
+
+38
+00:02:02.902 --> 00:02:05.904
+Ahora estamos en B y venimos de A.
+
+39
+00:02:05.904 --> 00:02:07.406
+Para cada vecino:
+
+40
+00:02:07.406 --> 00:02:11.998
+volver a A vale uno entre p, cero punto veinticinco.
+
+41
+00:02:11.998 --> 00:02:15.088
+C es vecino de A, así que vale uno.
+
+42
+00:02:15.088 --> 00:02:18.797
+D no es vecino de A, está a distancia dos:
+
+43
+00:02:18.797 --> 00:02:20.740
+vale uno entre q, dos.
+
+44
+00:02:20.740 --> 00:02:21.358
+Gana D.
+
+45
+00:02:21.708 --> 00:02:23.475
+En D, venimos de B.
+
+46
+00:02:23.475 --> 00:02:27.102
+Volver a B vale cero punto veinticinco.
+
+47
+00:02:27.102 --> 00:02:31.845
+E y F no son vecinos de B, así que ambos valen dos.
+
+48
+00:02:31.845 --> 00:02:34.914
+Empate, y gana la menor etiqueta:
+
+49
+00:02:34.914 --> 00:02:35.100
+E.
+
+50
+00:02:35.450 --> 00:02:37.348
+En E, venimos de D.
+
+51
+00:02:37.348 --> 00:02:39.347
+C no es vecino de D:
+
+52
+00:02:39.347 --> 00:02:40.246
+vale dos.
+
+53
+00:02:40.246 --> 00:02:41.345
+Volver a D:
+
+54
+00:02:41.345 --> 00:02:43.643
+cero punto veinticinco.
+
+55
+00:02:43.643 --> 00:02:44.642
+Vamos a C.
+
+56
+00:02:44.992 --> 00:02:47.776
+La caminata es A, B, D, E, C.
+
+57
+00:02:47.776 --> 00:02:54.304
+Como q es menor que uno, la caminata tiende a alejarse, como un DFS.
+
+58
+00:02:55.104 --> 00:02:56.175
+Ejercicio cuatro:
+
+59
+00:02:56.175 --> 00:02:59.705
+los pares centro-contexto del skip-gram con ventana uno,
+
+60
+00:02:59.705 --> 00:03:02.352
+sobre la caminata que acabamos de generar.
+
+61
+00:03:02.702 --> 00:03:08.598
+Para cada posición, el contexto son los nodos a distancia uno dentro de la caminata.
+
+62
+00:03:08.598 --> 00:03:09.791
+A solo tiene a B.
+
+63
+00:03:09.791 --> 00:03:11.054
+B tiene a A y a D.
+
+64
+00:03:11.404 --> 00:03:13.636
+D tiene a B y a E.
+
+65
+00:03:13.636 --> 00:03:15.868
+E tiene a D y a C.
+
+66
+00:03:16.218 --> 00:03:19.770
+Y C, el último, solo tiene a E.
+
+67
+00:03:20.120 --> 00:03:21.764
+En total, ocho pares.
+
+68
+00:03:21.764 --> 00:03:26.384
+Con ventana uno y L nodos, siempre son dos por L menos uno,
+
+69
+00:03:26.384 --> 00:03:29.672
+porque los extremos tienen un solo vecino.
+
+70
+00:03:30.472 --> 00:03:31.668
+Ejercicio cinco:
+
+71
+00:03:31.668 --> 00:03:34.135
+la pérdida con muestreo negativo.
+
+72
+00:03:34.135 --> 00:03:39.592
+Tenemos el vector del nodo central, el del contexto real y dos negativos.
+
+73
+00:03:39.942 --> 00:03:41.047
+Para el par real:
+
+74
+00:03:41.047 --> 00:03:43.386
+el producto punto es uno punto tres.
+
+75
+00:03:43.386 --> 00:03:47.285
+La sigmoide de uno punto tres es cero punto siete ocho seis,
+
+76
+00:03:47.285 --> 00:03:51.054
+y menos su logaritmo natural es cero punto dos cuatro uno.
+
+77
+00:03:51.404 --> 00:03:52.528
+Primer negativo:
+
+78
+00:03:52.528 --> 00:03:54.355
+el producto punto es cero.
+
+79
+00:03:54.355 --> 00:03:57.588
+La sigmoide de menos cero es cero punto cinco,
+
+80
+00:03:57.588 --> 00:04:01.172
+y menos su logaritmo es cero punto seis nueve tres.
+
+81
+00:04:01.522 --> 00:04:02.680
+Segundo negativo:
+
+82
+00:04:02.680 --> 00:04:04.859
+el producto es cero punto cinco.
+
+83
+00:04:04.859 --> 00:04:08.129
+Evaluamos la sigmoide en menos cero punto cinco:
+
+84
+00:04:08.129 --> 00:04:13.714
+cero punto tres siete ocho, y menos su logaritmo es cero punto nueve siete cuatro.
+
+85
+00:04:14.064 --> 00:04:16.329
+La pérdida total es la suma:
+
+86
+00:04:16.329 --> 00:04:18.432
+uno punto nueve cero ocho.
+
+87
+00:04:18.782 --> 00:04:24.141
+La trampa típica es olvidar el signo menos dentro de la sigmoide para los negativos.
+
+88
+00:04:24.141 --> 00:04:25.608
+Con eso cubres el tema;
+
+89
+00:04:25.608 --> 00:04:28.862
+practica con valores nuevos en la sección Práctica.
+

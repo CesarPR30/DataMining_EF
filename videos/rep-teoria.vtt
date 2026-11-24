@@ -1,0 +1,394 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:04.245
+En este video vemos cómo representar datos para machine learning:
+
+2
+00:00:04.245 --> 00:00:10.253
+codificación categórica, embeddings, SVD, cómo construir un grafo k-NN a partir de vectores,
+
+3
+00:00:10.253 --> 00:00:15.216
+y node2vec, que aprende un vector por nodo a partir de caminatas aleatorias.
+
+4
+00:00:16.316 --> 00:00:19.217
+Todo modelo trabaja con vectores numéricos.
+
+5
+00:00:19.217 --> 00:00:24.546
+Con datos categóricos, la opción ingenua es asignar un entero a cada categoría.
+
+6
+00:00:24.546 --> 00:00:26.975
+El problema es que inventa un orden:
+
+7
+00:00:26.975 --> 00:00:31.292
+diría que Netflix es menor que Prime, lo cual no significa nada.
+
+8
+00:00:31.642 --> 00:00:35.418
+El one-hot usa un vector binario con un solo uno.
+
+9
+00:00:35.418 --> 00:00:38.578
+No hay orden, pero el vector es disperso.
+
+10
+00:00:38.928 --> 00:00:45.033
+El multi-hot permite varias categorías activas a la vez, como los géneros de una película.
+
+11
+00:00:45.033 --> 00:00:46.594
+En el ejemplo de clase:
+
+12
+00:00:46.594 --> 00:00:52.224
+cuatro proveedores, veintiocho géneros, año y rating, treinta y cuatro dimensiones.
+
+13
+00:00:52.574 --> 00:00:54.932
+El problema es la explosión dimensional.
+
+14
+00:00:54.932 --> 00:00:59.118
+Con un vocabulario de un millón de palabras y quinientas por documento,
+
+15
+00:00:59.118 --> 00:01:03.422
+el noventa y nueve punto nueve cinco por ciento de las entradas son cero.
+
+16
+00:01:03.772 --> 00:01:05.510
+Y además no hay semántica:
+
+17
+00:01:05.510 --> 00:01:09.388
+con one-hot, good está igual de lejos de great que de bad.
+
+18
+00:01:10.188 --> 00:01:12.065
+La solución son los embeddings:
+
+19
+00:01:12.065 --> 00:01:17.089
+una función que lleva un vector enorme y disperso a uno denso de pocas dimensiones,
+
+20
+00:01:17.089 --> 00:01:19.692
+de modo que objetos parecidos queden cerca.
+
+21
+00:01:20.042 --> 00:01:21.811
+Un primer embebedor es SVD.
+
+22
+00:01:21.811 --> 00:01:26.593
+Se descompone la matriz documentos por términos, se trunca a r conceptos,
+
+23
+00:01:26.593 --> 00:01:32.162
+y el embedding de un documento es su producto punto con cada vector singular derecho.
+
+24
+00:01:32.512 --> 00:01:38.792
+Pero SVD necesita toda la matriz en memoria, es lineal y desperdicia espacio en ceros.
+
+25
+00:01:38.792 --> 00:01:42.736
+Por eso se pasa a métodos basados en redes neuronales.
+
+26
+00:01:43.536 --> 00:01:46.679
+Cuando pasamos a grafos, hay dos paradigmas.
+
+27
+00:01:46.679 --> 00:01:51.965
+En un grafo intrínseco, las aristas se observan directamente en los datos:
+
+28
+00:01:51.965 --> 00:01:55.680
+hipervínculos, citas, amistades o compras conjuntas.
+
+29
+00:01:56.030 --> 00:01:59.517
+En un grafo de proximidad, las aristas se construyen:
+
+30
+00:01:59.517 --> 00:02:05.044
+cada objeto es un vector, y se une con sus k vecinos más cercanos según una métrica.
+
+31
+00:02:05.044 --> 00:02:09.518
+Esas aristas dependen de las decisiones que tomemos, k y la métrica.
+
+32
+00:02:10.318 --> 00:02:12.174
+Para construir un grafo k-NN:
+
+33
+00:02:12.174 --> 00:02:15.118
+primero representamos cada objeto como vector,
+
+34
+00:02:15.118 --> 00:02:19.342
+por ejemplo con una CNN para imágenes o Sentence-BERT para textos.
+
+35
+00:02:19.692 --> 00:02:24.875
+Elegimos la métrica y k, y buscamos los k vecinos de cada nodo.
+
+36
+00:02:24.875 --> 00:02:31.703
+A gran escala no se compara todo contra todo, se usan índices aproximados como LSH,
+
+37
+00:02:31.703 --> 00:02:32.772
+HNSW o FAISS.
+
+38
+00:02:33.122 --> 00:02:38.686
+Ponemos una arista si j está entre los vecinos de i, o i entre los de j.
+
+39
+00:02:38.686 --> 00:02:40.541
+Esa es la versión unión;
+
+40
+00:02:40.541 --> 00:02:42.163
+la mutua exige ambas.
+
+41
+00:02:42.163 --> 00:02:44.018
+El peso es la similitud.
+
+42
+00:02:44.368 --> 00:02:48.757
+Un k pequeño da un grafo disperso con muchas comunidades pequeñas;
+
+43
+00:02:48.757 --> 00:02:51.217
+un k grande conecta clases distintas.
+
+44
+00:02:51.217 --> 00:02:54.808
+Se prueban varios valores y se compara la modularidad.
+
+45
+00:02:55.158 --> 00:02:58.515
+Con el grafo listo se aplican técnicas de grafos:
+
+46
+00:02:58.515 --> 00:03:05.022
+Louvain para comunidades, PageRank, propagación de etiquetas, o embeddings y GNN para predecir.
+
+47
+00:03:05.822 --> 00:03:08.140
+¿Cómo aprender un vector por nodo?
+
+48
+00:03:08.140 --> 00:03:14.412
+El encoder, en los métodos superficiales como DeepWalk o node2vec, es simplemente una tabla:
+
+49
+00:03:14.412 --> 00:03:16.934
+cada nodo tiene su vector entrenable.
+
+50
+00:03:17.284 --> 00:03:22.274
+La similitud en el grafo se define por co-ocurrencia en caminatas aleatorias:
+
+51
+00:03:22.274 --> 00:03:26.356
+si dos nodos aparecen cerca en muchas caminatas, son similares.
+
+52
+00:03:26.706 --> 00:03:31.626
+Y se entrena para que el producto punto de sus vectores aproxime esa similitud.
+
+53
+00:03:31.976 --> 00:03:33.962
+Es la misma idea que Word2Vec:
+
+54
+00:03:33.962 --> 00:03:37.405
+los nodos son palabras, las caminatas son oraciones,
+
+55
+00:03:37.405 --> 00:03:41.312
+y el contexto son los nodos cercanos dentro de una ventana.
+
+56
+00:03:42.112 --> 00:03:47.073
+El skip-gram predice el contexto a partir del nodo central con un softmax.
+
+57
+00:03:47.073 --> 00:03:52.168
+Pero el denominador suma sobre todos los nodos del grafo, y eso es carísimo.
+
+58
+00:03:52.518 --> 00:03:54.856
+La solución es el muestreo negativo:
+
+59
+00:03:54.856 --> 00:04:00.634
+en lugar de normalizar sobre todos, comparamos el par real contra solo m nodos negativos,
+
+60
+00:04:00.634 --> 00:04:01.998
+entre cinco y veinte.
+
+61
+00:04:02.348 --> 00:04:06.618
+El primer término empuja hacia arriba el producto punto del par real,
+
+62
+00:04:06.618 --> 00:04:08.969
+para que su sigmoide se acerque a uno.
+
+63
+00:04:08.969 --> 00:04:12.064
+El segundo empuja hacia abajo el de los negativos;
+
+64
+00:04:12.064 --> 00:04:14.972
+fíjate en el signo menos dentro de la sigmoide.
+
+65
+00:04:15.322 --> 00:04:20.098
+Los negativos se muestrean con más probabilidad para los nodos de alto grado.
+
+66
+00:04:20.898 --> 00:04:26.465
+La contribución de node2vec son las caminatas sesgadas por dos parámetros, p y q.
+
+67
+00:04:26.465 --> 00:04:31.756
+Si acabamos de pasar de t a v, el siguiente nodo x se elige con un peso alfa:
+
+68
+00:04:31.756 --> 00:04:36.155
+uno entre p si x es volver a t, uno si x también es vecino de t,
+
+69
+00:04:36.155 --> 00:04:39.522
+y uno entre q si x se aleja a distancia dos de t.
+
+70
+00:04:39.872 --> 00:04:43.127
+Con p alto, la caminata evita regresar;
+
+71
+00:04:43.127 --> 00:04:45.464
+con p bajo, regresa seguido.
+
+72
+00:04:45.814 --> 00:04:49.199
+Con q mayor que uno, se queda cerca, como un BFS:
+
+73
+00:04:49.199 --> 00:04:54.934
+captura el vecindario local y los roles estructurales, como ser un hub o un puente.
+
+74
+00:04:55.284 --> 00:04:59.105
+Con q menor que uno, se aleja, como un DFS:
+
+75
+00:04:59.105 --> 00:05:02.748
+captura comunidades, es decir, homofilia.
+
+76
+00:05:03.098 --> 00:05:08.076
+Con p y q iguales a uno es una caminata uniforme, que es DeepWalk.
+
+77
+00:05:08.076 --> 00:05:11.018
+Los valores se ajustan con grid search.
+
+78
+00:05:11.818 --> 00:05:13.200
+El pipeline completo:
+
+79
+00:05:13.200 --> 00:05:16.359
+se precalculan las probabilidades de transición,
+
+80
+00:05:16.359 --> 00:05:19.649
+se generan r caminatas de largo l desde cada nodo,
+
+81
+00:05:19.649 --> 00:05:22.808
+y se entrena el skip-gram con muestreo negativo.
+
+82
+00:05:22.808 --> 00:05:25.111
+El resultado es un vector por nodo.
+
+83
+00:05:25.111 --> 00:05:30.442
+node2vec superó a DeepWalk y a los métodos espectrales en clasificación de nodos.
+
+84
+00:05:30.792 --> 00:05:35.102
+Pero tiene tres limitaciones que debes saber para los casos de estudio:
+
+85
+00:05:35.102 --> 00:05:39.352
+el número de parámetros crece con el número de nodos, es transductivo,
+
+86
+00:05:39.352 --> 00:05:44.148
+así que un nodo nuevo obliga a reentrenar, e ignora los atributos de los nodos.
+
+87
+00:05:44.148 --> 00:05:47.184
+Las redes neuronales de grafos resuelven las tres.
+
+88
+00:05:47.984 --> 00:05:48.546
+Resumen:
+
+89
+00:05:48.546 --> 00:05:51.143
+el integer encoding inventa un orden;
+
+90
+00:05:51.143 --> 00:05:54.652
+one-hot y multi-hot son dispersos y sin semántica.
+
+91
+00:05:54.652 --> 00:05:58.232
+Los embeddings son densos y preservan la similitud.
+
+92
+00:05:58.582 --> 00:06:02.777
+Un grafo k-NN se construye desde vectores eligiendo métrica y k.
+
+93
+00:06:02.777 --> 00:06:06.645
+node2vec aprende vectores con caminatas sesgadas por p y q,
+
+94
+00:06:06.645 --> 00:06:09.070
+y un skip-gram con muestreo negativo.
+
+95
+00:06:09.420 --> 00:06:10.809
+Y sus limitaciones:
+
+96
+00:06:10.809 --> 00:06:15.636
+es transductivo, ignora atributos y escala con el número de nodos.
+
+97
+00:06:15.986 --> 00:06:20.668
+En el video práctico hacemos todos estos cálculos a mano.
+
+98
+00:06:20.668 --> 00:06:21.818
+Nos vemos ahí.
+

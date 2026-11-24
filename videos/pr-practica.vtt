@@ -1,0 +1,346 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:05.582
+En este video resolvemos a mano los cuatro tipos de ejercicio de PageRank que pueden venir:
+
+2
+00:00:05.582 --> 00:00:11.042
+ecuaciones de flujo, power iteration, teletransporte con una spider trap, y block-stripe.
+
+3
+00:00:11.042 --> 00:00:15.336
+Usamos un grafo de tres nodos para que se vean bien todos los números.
+
+4
+00:00:16.436 --> 00:00:18.548
+Siempre empezamos igual:
+
+5
+00:00:18.548 --> 00:00:21.012
+grados de salida y matriz M.
+
+6
+00:00:21.012 --> 00:00:22.508
+Este es el grafo:
+
+7
+00:00:22.508 --> 00:00:24.796
+y apunta a sí misma y a a;
+
+8
+00:00:24.796 --> 00:00:26.468
+a apunta a y y a m;
+
+9
+00:00:26.468 --> 00:00:27.788
+y m apunta a a.
+
+10
+00:00:28.138 --> 00:00:32.652
+y tiene dos enlaces salientes, así que cada uno lleva un medio.
+
+11
+00:00:32.652 --> 00:00:34.514
+Eso llena la columna de y:
+
+12
+00:00:34.514 --> 00:00:37.810
+un medio en la fila y y un medio en la fila a.
+
+13
+00:00:38.160 --> 00:00:39.994
+a también tiene grado dos:
+
+14
+00:00:39.994 --> 00:00:43.944
+un medio hacia y y un medio hacia m, en la columna de a.
+
+15
+00:00:44.294 --> 00:00:45.939
+Y m tiene grado uno:
+
+16
+00:00:45.939 --> 00:00:50.462
+todo su peso va a a, un uno en la columna de m, fila a.
+
+17
+00:00:50.812 --> 00:00:54.404
+La trampa más común es transponer la matriz.
+
+18
+00:00:54.404 --> 00:00:55.139
+Recuerda:
+
+19
+00:00:55.139 --> 00:00:59.548
+fila destino, columna origen, y cada columna suma uno.
+
+20
+00:01:00.348 --> 00:01:01.555
+Ejercicio uno:
+
+21
+00:01:01.555 --> 00:01:04.399
+resolver con ecuaciones de flujo.
+
+22
+00:01:04.399 --> 00:01:06.123
+De la ecuación de y:
+
+23
+00:01:06.123 --> 00:01:09.399
+r y igual a r y medios más r a medios.
+
+24
+00:01:09.399 --> 00:01:12.588
+Pasando términos, r y es igual a r a.
+
+25
+00:01:12.938 --> 00:01:14.881
+De la ecuación de m:
+
+26
+00:01:14.881 --> 00:01:16.922
+r m es r a entre dos.
+
+27
+00:01:17.272 --> 00:01:22.380
+Ahora usamos la condición de suma uno, reemplazando a la tercera ecuación:
+
+28
+00:01:22.380 --> 00:01:25.072
+r a más r a más r a medios igual a uno.
+
+29
+00:01:25.422 --> 00:01:31.494
+Eso da r a igual a dos quintos, r y igual a dos quintos y r m igual a un quinto.
+
+30
+00:01:31.844 --> 00:01:32.106
+Ojo:
+
+31
+00:01:32.106 --> 00:01:35.900
+las ecuaciones de flujo solas tienen infinitas soluciones,
+
+32
+00:01:35.900 --> 00:01:38.845
+porque cualquier múltiplo también las cumple.
+
+33
+00:01:38.845 --> 00:01:42.116
+La condición de suma uno es la que fija la escala.
+
+34
+00:01:42.916 --> 00:01:43.972
+Ejercicio dos:
+
+35
+00:01:43.972 --> 00:01:48.500
+dos iteraciones del método de potencias, sin teletransporte.
+
+36
+00:01:48.500 --> 00:01:51.292
+Empezamos con un tercio en cada nodo.
+
+37
+00:01:51.642 --> 00:01:54.482
+Para cada nodo sumamos lo que le llega:
+
+38
+00:01:54.482 --> 00:01:59.215
+y recibe medio tercio de sí misma y medio tercio de a, un tercio.
+
+39
+00:01:59.215 --> 00:02:03.802
+a recibe medio tercio de y y un tercio completo de m, un medio.
+
+40
+00:02:03.802 --> 00:02:06.642
+Y m recibe medio tercio de a, un sexto.
+
+41
+00:02:06.992 --> 00:02:09.794
+Segunda iteración, con el vector nuevo:
+
+42
+00:02:09.794 --> 00:02:13.242
+y recibe un sexto más un cuarto, cinco doceavos;
+
+43
+00:02:13.242 --> 00:02:16.259
+a recibe un sexto más un sexto, un tercio;
+
+44
+00:02:16.259 --> 00:02:17.768
+y m recibe un cuarto.
+
+45
+00:02:18.118 --> 00:02:19.322
+Truco de control:
+
+46
+00:02:19.322 --> 00:02:22.368
+en cada iteración el vector debe sumar uno.
+
+47
+00:02:22.368 --> 00:02:26.902
+Si no suma uno y no hay dead ends, te equivocaste en algún paso.
+
+48
+00:02:27.702 --> 00:02:29.146
+Ejercicio tres.
+
+49
+00:02:29.146 --> 00:02:30.975
+Cambiamos el grafo:
+
+50
+00:02:30.975 --> 00:02:34.249
+ahora m solo se apunta a sí misma.
+
+51
+00:02:34.249 --> 00:02:36.078
+Es una spider trap.
+
+52
+00:02:36.428 --> 00:02:43.460
+Sin teletransporte, en cada iteración m acumula más, y el vector termina en cero, cero, uno.
+
+53
+00:02:43.810 --> 00:02:47.098
+Aplicamos teletransporte con beta cero punto ocho.
+
+54
+00:02:47.098 --> 00:02:52.885
+Cada nodo recibe cero punto ocho por el flujo de enlaces, más cero punto dos entre tres,
+
+55
+00:02:52.885 --> 00:02:55.450
+que es cero punto cero seis seis siete.
+
+56
+00:02:55.800 --> 00:02:58.178
+Primera iteración desde un tercio:
+
+57
+00:02:58.178 --> 00:03:02.723
+y recibe cero punto ocho por un sexto más un sexto, más el salto:
+
+58
+00:03:02.723 --> 00:03:04.891
+cero punto tres tres tres tres.
+
+59
+00:03:04.891 --> 00:03:08.458
+a recibe cero punto ocho por un sexto más el salto:
+
+60
+00:03:08.458 --> 00:03:09.507
+cero punto dos.
+
+61
+00:03:09.507 --> 00:03:15.451
+Y m recibe cero punto ocho por un sexto de a más un tercio de sí misma, más el salto:
+
+62
+00:03:15.451 --> 00:03:17.829
+cero punto cuatro seis seis siete.
+
+63
+00:03:17.829 --> 00:03:18.528
+Suman uno.
+
+64
+00:03:18.878 --> 00:03:23.765
+Si sigues iterando converge a siete, cinco y veintiún treintaitresavos.
+
+65
+00:03:23.765 --> 00:03:28.790
+m sigue siendo la más importante, pero la trampa ya no se queda con todo.
+
+66
+00:03:29.590 --> 00:03:30.746
+Ejercicio cuatro:
+
+67
+00:03:30.746 --> 00:03:35.712
+una iteración block-stripe, con el grafo original y beta cero punto ocho.
+
+68
+00:03:35.712 --> 00:03:39.317
+Cada enlace aporta cero punto ocho por r i entre d i:
+
+69
+00:03:39.317 --> 00:03:44.350
+con r igual a un tercio y grado dos, eso es cero punto uno tres tres tres.
+
+70
+00:03:44.700 --> 00:03:48.076
+Stripe uno, con los enlaces de y y de a:
+
+71
+00:03:48.076 --> 00:03:54.237
+y recibe dos aportes, de sí misma y de a, cero punto dos seis seis siete.
+
+72
+00:03:54.237 --> 00:03:55.840
+a recibe uno, de y.
+
+73
+00:03:55.840 --> 00:03:57.444
+m recibe uno, de a.
+
+74
+00:03:57.794 --> 00:04:00.567
+Stripe dos, sin reiniciar el acumulador:
+
+75
+00:04:00.567 --> 00:04:05.419
+el enlace de m hacia a aporta cero punto ocho por un tercio entre uno,
+
+76
+00:04:05.419 --> 00:04:07.568
+cero punto dos seis seis siete.
+
+77
+00:04:07.568 --> 00:04:09.578
+a queda en cero punto cuatro.
+
+78
+00:04:09.928 --> 00:04:13.911
+Solo al final sumamos cero punto cero seis seis siete a todos:
+
+79
+00:04:13.911 --> 00:04:19.243
+cero punto tres tres tres tres, cero punto cuatro seis seis siete y cero punto dos.
+
+80
+00:04:19.243 --> 00:04:22.840
+Es lo mismo que una iteración normal con teletransporte.
+
+81
+00:04:23.190 --> 00:04:24.306
+Las dos trampas:
+
+82
+00:04:24.306 --> 00:04:27.862
+sumar el término del teletransporte en cada stripe,
+
+83
+00:04:27.862 --> 00:04:32.465
+y usar como grado el número de enlaces del nodo dentro del stripe.
+
+84
+00:04:32.465 --> 00:04:34.906
+El grado es siempre el grado total.
+
+85
+00:04:34.906 --> 00:04:36.719
+Y con eso cubres PageRank.
+
+86
+00:04:36.719 --> 00:04:40.206
+Practica con grafos nuevos en la sección Práctica.
+

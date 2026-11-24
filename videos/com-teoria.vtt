@@ -1,0 +1,442 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:03.033
+En este video repasamos detección de comunidades:
+
+2
+00:00:03.033 --> 00:00:07.614
+edge betweenness y Girvan-Newman, la modularidad, el clustering espectral,
+
+3
+00:00:07.614 --> 00:00:12.504
+y los métodos que escalan a redes enormes, Label Propagation, Louvain y Leiden.
+
+4
+00:00:13.604 --> 00:00:19.599
+Una comunidad es un conjunto de nodos muy conectados entre sí y poco conectados con el resto
+
+5
+00:00:19.599 --> 00:00:20.251
+de la red.
+
+6
+00:00:20.251 --> 00:00:21.880
+En este grafo se ven dos:
+
+7
+00:00:21.880 --> 00:00:24.356
+el bloque azul y el triángulo naranja.
+
+8
+00:00:24.706 --> 00:00:29.241
+Se usa para encontrar círculos sociales, micro-mercados en publicidad,
+
+9
+00:00:29.241 --> 00:00:32.026
+anillos de fraude o complejos de proteínas.
+
+10
+00:00:32.376 --> 00:00:35.336
+La intuición clave viene de Granovetter:
+
+11
+00:00:35.336 --> 00:00:38.592
+los lazos débiles conectan grupos distintos.
+
+12
+00:00:38.592 --> 00:00:40.664
+Aquí, las aristas C E y C F.
+
+13
+00:00:40.664 --> 00:00:47.472
+Por esas aristas pasan muchísimos caminos más cortos, y eso nos da una forma de detectarlas.
+
+14
+00:00:48.272 --> 00:00:52.940
+El edge betweenness de una arista es la suma, sobre todos los pares de nodos,
+
+15
+00:00:52.940 --> 00:00:57.426
+de la fracción de caminos más cortos entre ellos que pasan por esa arista.
+
+16
+00:00:57.426 --> 00:00:59.912
+Una arista puente tiene betweenness alta.
+
+17
+00:01:00.262 --> 00:01:02.954
+El algoritmo de Girvan-Newman usa esa idea:
+
+18
+00:01:02.954 --> 00:01:06.835
+calcula la betweenness de todas las aristas, elimina la mayor,
+
+19
+00:01:06.835 --> 00:01:10.841
+registra las componentes en un dendrograma, y vuelve a calcular.
+
+20
+00:01:10.841 --> 00:01:15.598
+Hay que recalcular siempre, porque al quitar una arista los caminos cambian.
+
+21
+00:01:15.948 --> 00:01:17.543
+Es jerárquico divisivo.
+
+22
+00:01:17.543 --> 00:01:22.050
+Al final, el dendrograma se corta donde la modularidad es máxima.
+
+23
+00:01:22.050 --> 00:01:28.014
+Su costo es del orden de m al cuadrado por n, así que solo sirve para grafos pequeños,
+
+24
+00:01:28.014 --> 00:01:30.372
+como el club de karate de Zachary.
+
+25
+00:01:31.172 --> 00:01:34.867
+Calcular betweenness listando caminos es inviable.
+
+26
+00:01:34.867 --> 00:01:39.301
+El método eficiente, de Brandes, hace un BFS desde una raíz:
+
+27
+00:01:39.301 --> 00:01:42.479
+asigna niveles y cuenta caminos más cortos.
+
+28
+00:01:42.479 --> 00:01:47.948
+La raíz tiene sigma igual a uno, y cada nodo suma los sigma de sus padres.
+
+29
+00:01:48.298 --> 00:01:51.654
+Luego se propaga crédito de abajo hacia arriba.
+
+30
+00:01:51.654 --> 00:01:56.866
+Cada nodo tiene crédito uno, por sí mismo, más lo que le pasan sus hijos.
+
+31
+00:01:57.216 --> 00:02:01.422
+Ese crédito se reparte entre los padres en proporción a sus sigma:
+
+32
+00:02:01.422 --> 00:02:04.608
+crédito de v por sigma del padre entre sigma de v.
+
+33
+00:02:04.958 --> 00:02:10.652
+Las aristas entre nodos del mismo nivel no están en ningún camino más corto desde esa raíz,
+
+34
+00:02:10.652 --> 00:02:11.966
+así que reciben cero.
+
+35
+00:02:12.316 --> 00:02:16.886
+Se repite desde cada raíz, se suma por arista y se divide entre dos,
+
+36
+00:02:16.886 --> 00:02:20.044
+porque cada par se cuenta desde ambos extremos.
+
+37
+00:02:20.394 --> 00:02:27.358
+Un BFS cuesta m más n, todas las raíces m por n, y Girvan-Newman completo m al cuadrado por n.
+
+38
+00:02:27.358 --> 00:02:30.618
+Lo hacemos con números en el video práctico.
+
+39
+00:02:31.418 --> 00:02:34.115
+¿Cómo sabemos si una partición es buena?
+
+40
+00:02:34.115 --> 00:02:35.397
+Con la modularidad.
+
+41
+00:02:35.397 --> 00:02:41.736
+Para cada comunidad, restamos la fracción de aristas internas menos el cuadrado de la fracción
+
+42
+00:02:41.736 --> 00:02:42.410
+de grados.
+
+43
+00:02:42.760 --> 00:02:48.328
+La idea es comparar las aristas internas reales con las que esperaríamos en un grafo aleatorio
+
+44
+00:02:48.328 --> 00:02:53.896
+con los mismos grados, donde la probabilidad de arista entre i y j es k i por k j entre dos m.
+
+45
+00:02:54.246 --> 00:02:59.179
+Una Q cercana a cero significa que la partición no es mejor que el azar.
+
+46
+00:02:59.179 --> 00:03:05.345
+Por encima de cero punto tres hay comunidades moderadas, y por encima de cero punto siete,
+
+47
+00:03:05.345 --> 00:03:06.168
+muy fuertes.
+
+48
+00:03:06.168 --> 00:03:10.758
+Optimizar Q de forma exacta es NP-duro, por eso usamos heurísticas.
+
+49
+00:03:11.558 --> 00:03:14.797
+El clustering espectral usa álgebra lineal.
+
+50
+00:03:14.797 --> 00:03:18.413
+Se construye la Laplaciana, L igual a D menos A:
+
+51
+00:03:18.413 --> 00:03:22.555
+los grados en la diagonal y menos uno donde hay arista.
+
+52
+00:03:22.555 --> 00:03:24.062
+Cada fila suma cero.
+
+53
+00:03:24.412 --> 00:03:27.468
+Se calculan sus autovalores de menor a mayor.
+
+54
+00:03:27.468 --> 00:03:32.764
+El primero siempre es cero, con un vector constante que no aporta información.
+
+55
+00:03:33.114 --> 00:03:37.564
+Para partir en dos, se usa el segundo autovector, el vector de Fiedler:
+
+56
+00:03:37.564 --> 00:03:41.826
+los nodos con signo positivo van a un grupo y los negativos al otro.
+
+57
+00:03:42.176 --> 00:03:47.906
+Para k grupos, se toman los primeros k autovectores como columnas y se aplica K-means sobre
+
+58
+00:03:47.906 --> 00:03:48.536
+las filas.
+
+59
+00:03:48.886 --> 00:03:51.279
+Para elegir k se usa el eigengap:
+
+60
+00:03:51.279 --> 00:03:54.977
+el salto más grande entre autovalores consecutivos.
+
+61
+00:03:54.977 --> 00:03:56.209
+Cuesta n al cubo.
+
+62
+00:03:56.209 --> 00:03:56.934
+Y cuidado:
+
+63
+00:03:56.934 --> 00:04:02.590
+el signo del autovector es arbitrario, lo que importa es quién comparte signo.
+
+64
+00:04:03.390 --> 00:04:08.350
+Para redes de millones de nodos, el método más simple es Label Propagation.
+
+65
+00:04:08.350 --> 00:04:11.062
+Cada nodo empieza con su propia etiqueta,
+
+66
+00:04:11.062 --> 00:04:15.824
+y en orden aleatorio adopta la etiqueta más frecuente entre sus vecinos.
+
+67
+00:04:15.824 --> 00:04:18.006
+Se repite hasta que nadie cambia.
+
+68
+00:04:18.356 --> 00:04:19.241
+Es rapidísimo:
+
+69
+00:04:19.241 --> 00:04:24.048
+lineal en el número de aristas por iteración, converge en pocas iteraciones,
+
+70
+00:04:24.048 --> 00:04:27.716
+no necesita k ni hiperparámetros y se paraleliza muy bien.
+
+71
+00:04:28.066 --> 00:04:31.634
+Pero no es determinista, los empates cambian el resultado,
+
+72
+00:04:31.634 --> 00:04:35.878
+puede colapsar en una comunidad gigante y no optimiza la modularidad.
+
+73
+00:04:35.878 --> 00:04:41.722
+En doscientas corridas sobre el mismo grafo, Q varió entre cero y cero punto cuarenta y cuatro.
+
+74
+00:04:42.522 --> 00:04:46.280
+Louvain es el método de referencia para redes grandes.
+
+75
+00:04:46.280 --> 00:04:47.393
+Tiene dos fases.
+
+76
+00:04:47.393 --> 00:04:51.221
+En la fase uno, cada nodo empieza solo en su comunidad,
+
+77
+00:04:51.221 --> 00:04:55.675
+y se mueve a la comunidad vecina que más aumenta la modularidad,
+
+78
+00:04:55.675 --> 00:04:58.250
+siempre que la ganancia sea positiva.
+
+79
+00:04:58.250 --> 00:05:00.546
+Se repite hasta que nadie mejore.
+
+80
+00:05:00.896 --> 00:05:04.944
+En la fase dos, cada comunidad se convierte en un supernodo.
+
+81
+00:05:04.944 --> 00:05:07.980
+Las aristas internas se vuelven un auto-lazo,
+
+82
+00:05:07.980 --> 00:05:12.905
+y las aristas entre comunidades se vuelven una arista con peso acumulado.
+
+83
+00:05:12.905 --> 00:05:15.536
+El grafo reducido vuelve a la fase uno.
+
+84
+00:05:15.886 --> 00:05:18.705
+La ganancia de modularidad se calcula así:
+
+85
+00:05:18.705 --> 00:05:23.134
+k i in entre m, menos k i por sigma total entre dos m al cuadrado.
+
+86
+00:05:23.484 --> 00:05:28.864
+Como se calcula en tiempo constante manteniendo sumas, Louvain es casi n log n,
+
+87
+00:05:28.864 --> 00:05:31.452
+soporta pesos y entrega una jerarquía.
+
+88
+00:05:31.802 --> 00:05:33.934
+Ojo con la convención del examen:
+
+89
+00:05:33.934 --> 00:05:38.714
+el auto-lazo de un supernodo vale dos veces el número de aristas internas.
+
+90
+00:05:39.514 --> 00:05:41.726
+Una mejora de Louvain es Leiden.
+
+91
+00:05:41.726 --> 00:05:47.326
+Louvain puede dejar comunidades mal conectadas, incluso desconectadas por dentro.
+
+92
+00:05:47.326 --> 00:05:51.542
+Leiden agrega una fase de refinamiento entre mover y agregar,
+
+93
+00:05:51.542 --> 00:05:53.962
+y garantiza comunidades conectadas.
+
+94
+00:05:54.312 --> 00:05:55.238
+Para comparar:
+
+95
+00:05:55.238 --> 00:05:58.746
+Girvan-Newman es para grafos pequeños y da jerarquía;
+
+96
+00:05:58.746 --> 00:06:01.128
+el espectral sirve cuando conoces k.
+
+97
+00:06:01.478 --> 00:06:04.823
+Label Propagation es el más rápido para millones de nodos,
+
+98
+00:06:04.823 --> 00:06:09.782
+y Louvain o Leiden son la opción por defecto para redes grandes con buena modularidad.
+
+99
+00:06:10.582 --> 00:06:11.169
+Resumen:
+
+100
+00:06:11.169 --> 00:06:14.469
+una arista con betweenness alta es un puente;
+
+101
+00:06:14.469 --> 00:06:17.255
+Girvan-Newman las elimina y recalcula.
+
+102
+00:06:17.255 --> 00:06:18.135
+Con Brandes:
+
+103
+00:06:18.135 --> 00:06:23.635
+BFS, sigma, crédito repartido según sigma, cero en aristas del mismo nivel,
+
+104
+00:06:23.635 --> 00:06:25.102
+y dividir entre dos.
+
+105
+00:06:25.452 --> 00:06:29.468
+La modularidad compara aristas internas con las esperadas.
+
+106
+00:06:29.468 --> 00:06:33.900
+El espectral usa la Laplaciana y el signo del vector de Fiedler.
+
+107
+00:06:34.250 --> 00:06:40.106
+Label Propagation es rápido pero inestable, Louvain mueve y agrega, y Leiden refina.
+
+108
+00:06:40.456 --> 00:06:45.637
+En el video práctico resolvemos las dos preguntas de tres puntos del examen:
+
+109
+00:06:45.637 --> 00:06:48.910
+Brandes desde A y G, y la agregación de Louvain.
+
+110
+00:06:48.910 --> 00:06:49.864
+Nos vemos ahí.
+

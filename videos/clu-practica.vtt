@@ -1,0 +1,294 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:03.101
+En este video hacemos los cálculos de BFR a mano:
+
+2
+00:00:03.101 --> 00:00:08.102
+el resumen de un cluster, su centroide y varianza, la distancia de Mahalanobis,
+
+3
+00:00:08.102 --> 00:00:13.608
+cómo actualizar y fusionar resúmenes, y cerramos con cómo responder el caso del examen.
+
+4
+00:00:14.708 --> 00:00:15.362
+Paso uno:
+
+5
+00:00:15.362 --> 00:00:19.868
+el resumen de un cluster con cuatro puntos en dos dimensiones.
+
+6
+00:00:20.218 --> 00:00:22.768
+N es el número de puntos:
+
+7
+00:00:22.768 --> 00:00:23.482
+cuatro.
+
+8
+00:00:23.832 --> 00:00:26.102
+SUM es la suma por dimensión:
+
+9
+00:00:26.102 --> 00:00:29.310
+en x, uno más tres más dos más dos, ocho;
+
+10
+00:00:29.310 --> 00:00:32.832
+en y, cuatro más dos más tres más tres, doce.
+
+11
+00:00:33.182 --> 00:00:36.139
+SUMSQ es la suma de cuadrados por dimensión:
+
+12
+00:00:36.139 --> 00:00:39.700
+en x, uno más nueve más cuatro más cuatro, dieciocho;
+
+13
+00:00:39.700 --> 00:00:43.934
+en y, dieciséis más cuatro más nueve más nueve, treinta y ocho.
+
+14
+00:00:44.734 --> 00:00:45.429
+Paso dos:
+
+15
+00:00:45.429 --> 00:00:50.374
+centroide y varianza a partir del resumen, sin mirar los puntos.
+
+16
+00:00:50.724 --> 00:00:53.060
+El centroide es SUM entre N:
+
+17
+00:00:53.060 --> 00:00:54.979
+ocho entre cuatro, dos;
+
+18
+00:00:54.979 --> 00:00:56.981
+doce entre cuatro, tres.
+
+19
+00:00:56.981 --> 00:00:59.150
+El centroide es dos, tres;
+
+20
+00:00:59.150 --> 00:01:01.236
+lo marcamos con la equis.
+
+21
+00:01:01.586 --> 00:01:07.767
+La varianza en x es dieciocho entre cuatro, cuatro punto cinco, menos dos al cuadrado:
+
+22
+00:01:07.767 --> 00:01:08.989
+cero punto cinco.
+
+23
+00:01:08.989 --> 00:01:13.732
+En y, treinta y ocho entre cuatro, nueve punto cinco, menos nueve:
+
+24
+00:01:13.732 --> 00:01:14.954
+cero punto cinco.
+
+25
+00:01:15.304 --> 00:01:17.814
+La desviación estándar es la raíz:
+
+26
+00:01:17.814 --> 00:01:21.431
+cero punto siete cero siete en ambas dimensiones.
+
+27
+00:01:21.431 --> 00:01:24.088
+La elipse muestra tres desviaciones.
+
+28
+00:01:24.438 --> 00:01:24.814
+Ojo:
+
+29
+00:01:24.814 --> 00:01:28.854
+es varianza poblacional, se divide entre N.
+
+30
+00:01:29.654 --> 00:01:30.388
+Paso tres:
+
+31
+00:01:30.388 --> 00:01:34.646
+llegan dos puntos nuevos y el umbral es tres desviaciones.
+
+32
+00:01:34.996 --> 00:01:37.004
+Para el punto tres, cuatro:
+
+33
+00:01:37.004 --> 00:01:41.168
+la diferencia con el centroide es uno en cada dimensión.
+
+34
+00:01:41.168 --> 00:01:46.893
+Dividida entre cero punto siete cero siete y al cuadrado, da dos en cada una.
+
+35
+00:01:46.893 --> 00:01:48.008
+Raíz de cuatro:
+
+36
+00:01:48.008 --> 00:01:48.306
+dos.
+
+37
+00:01:48.306 --> 00:01:51.652
+Es menor que tres, así que va al Discard Set.
+
+38
+00:01:52.002 --> 00:01:54.074
+Para el punto cinco, tres:
+
+39
+00:01:54.074 --> 00:01:57.183
+la diferencia es tres en x y cero en y.
+
+40
+00:01:57.183 --> 00:02:02.443
+Tres entre cero punto siete cero siete, al cuadrado, es dieciocho.
+
+41
+00:02:02.443 --> 00:02:03.878
+Raíz de dieciocho:
+
+42
+00:02:03.878 --> 00:02:05.791
+cuatro punto dos cuatro.
+
+43
+00:02:05.791 --> 00:02:07.146
+Supera el umbral.
+
+44
+00:02:07.496 --> 00:02:09.526
+Ese punto no se asigna al cluster:
+
+45
+00:02:09.526 --> 00:02:14.901
+pasa al clustering en memoria, y termina en el Compression Set si forma un grupo con otros
+
+46
+00:02:14.901 --> 00:02:17.648
+puntos, o en el Retained Set si queda aislado.
+
+47
+00:02:18.448 --> 00:02:19.337
+Paso cuatro:
+
+48
+00:02:19.337 --> 00:02:20.966
+actualizar el resumen.
+
+49
+00:02:20.966 --> 00:02:23.336
+Al añadir el punto tres, cuatro:
+
+50
+00:02:23.336 --> 00:02:28.002
+N sube a cinco, SUM suma tres y cuatro y queda once, dieciséis;
+
+51
+00:02:28.002 --> 00:02:33.112
+SUMSQ suma nueve y dieciséis y queda veintisiete, cincuenta y cuatro.
+
+52
+00:02:33.462 --> 00:02:36.988
+El nuevo centroide es dos punto dos, tres punto dos,
+
+53
+00:02:36.988 --> 00:02:40.854
+y la varianza cero punto cinco seis en ambas dimensiones.
+
+54
+00:02:41.204 --> 00:02:42.836
+Ahora la paralelización:
+
+55
+00:02:42.836 --> 00:02:49.092
+otro servidor procesó su partición y tiene un resumen del mismo cluster, con N igual a tres,
+
+56
+00:02:49.092 --> 00:02:52.220
+SUM siete, ocho y SUMSQ diecisiete, veintidós.
+
+57
+00:02:52.570 --> 00:02:55.628
+Fusionar es sumar componente a componente:
+
+58
+00:02:55.628 --> 00:03:01.234
+N ocho, SUM dieciocho, veinticuatro, SUMSQ cuarenta y cuatro, setenta y seis.
+
+59
+00:03:01.584 --> 00:03:04.800
+El centroide global es dos punto dos cinco, tres,
+
+60
+00:03:04.800 --> 00:03:09.264
+y la varianza cero punto cuatro tres siete cinco y cero punto cinco.
+
+61
+00:03:09.614 --> 00:03:13.296
+Fíjate que nunca necesitamos los puntos originales:
+
+62
+00:03:13.296 --> 00:03:14.812
+solo sumar resúmenes.
+
+63
+00:03:14.812 --> 00:03:18.782
+Esa es la frase que justifica la eficiencia en el caso.
+
+64
+00:03:19.582 --> 00:03:24.412
+Para cerrar, cómo se reparten los dos puntos del caso según la rúbrica.
+
+65
+00:03:24.412 --> 00:03:28.222
+Cero punto cuatro por describir bien los tres conjuntos.
+
+66
+00:03:28.572 --> 00:03:33.828
+Cero punto cuatro por explicar el resumen y cómo se obtienen el centroide y la varianza.
+
+67
+00:03:34.178 --> 00:03:37.013
+Cero punto cinco por un pseudocódigo estructurado,
+
+68
+00:03:37.013 --> 00:03:41.378
+con la asignación por Mahalanobis y el manejo del Compression y Retained Set.
+
+69
+00:03:41.728 --> 00:03:44.192
+Cero punto tres por la paralelización:
+
+70
+00:03:44.192 --> 00:03:47.824
+cada servidor resume su partición y se combinan sumando.
+
+71
+00:03:48.174 --> 00:03:51.351
+Y cero punto cuatro por justificar la eficiencia:
+
+72
+00:03:51.351 --> 00:03:56.667
+una pasada, memoria independiente de n, estadísticas aditivas y poca comunicación.
+
+73
+00:03:56.667 --> 00:04:01.206
+Practica escribiéndola en el Simulacro y autocorrígete con la rúbrica.
+

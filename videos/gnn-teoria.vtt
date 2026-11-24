@@ -1,0 +1,358 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:03.460
+En este video vemos las redes neuronales de grafos:
+
+2
+00:00:03.460 --> 00:00:08.480
+por qué no sirven las CNN, cómo funciona una capa de mensaje y agregación,
+
+3
+00:00:08.480 --> 00:00:13.704
+qué tareas resuelven, cómo se entrenan, y las variantes GCN, GraphSAGE y GAT.
+
+4
+00:00:14.804 --> 00:00:18.252
+Venimos de node2vec, que tenía tres limitaciones.
+
+5
+00:00:18.252 --> 00:00:23.388
+Queremos un encoder que comparta parámetros, que sea inductivo, es decir,
+
+6
+00:00:23.388 --> 00:00:28.172
+que funcione con nodos nuevos, y que use los atributos de los nodos.
+
+7
+00:00:28.522 --> 00:00:31.250
+¿Por qué no usar una CNN o una RNN?
+
+8
+00:00:31.250 --> 00:00:34.056
+Porque asumen estructuras regulares:
+
+9
+00:00:34.056 --> 00:00:37.018
+una grilla de píxeles o una secuencia.
+
+10
+00:00:37.368 --> 00:00:40.605
+Un grafo tiene tamaño y forma arbitrarios.
+
+11
+00:00:40.605 --> 00:00:43.920
+Un nodo puede tener dos vecinos y otro mil.
+
+12
+00:00:44.270 --> 00:00:46.932
+Y no hay un orden canónico de los nodos:
+
+13
+00:00:46.932 --> 00:00:52.190
+si los renumeramos, es el mismo grafo, y el modelo debe dar el mismo resultado.
+
+14
+00:00:52.540 --> 00:00:58.180
+Además, los grafos reales cambian en el tiempo y tienen atributos de distintos tipos.
+
+15
+00:00:58.980 --> 00:01:01.577
+Una capa de GNN tiene dos pasos.
+
+16
+00:01:01.577 --> 00:01:05.879
+Primero, cada vecino u del nodo v calcula un mensaje,
+
+17
+00:01:05.879 --> 00:01:09.612
+típicamente una matriz W por su vector actual.
+
+18
+00:01:09.962 --> 00:01:15.110
+Segundo, el nodo agrega los mensajes de sus vecinos con una función simétrica:
+
+19
+00:01:15.110 --> 00:01:16.694
+suma, promedio o máximo.
+
+20
+00:01:16.694 --> 00:01:22.106
+Tiene que ser simétrica para que el resultado no dependa del orden de los vecinos.
+
+21
+00:01:22.456 --> 00:01:23.477
+Hay un detalle:
+
+22
+00:01:23.477 --> 00:01:27.494
+si solo agregamos vecinos, el nodo olvida su propio estado.
+
+23
+00:01:27.494 --> 00:01:33.280
+Por eso se incluye también el vector del propio nodo, multiplicado por otra matriz B.
+
+24
+00:01:34.080 --> 00:01:36.849
+Esta es la fórmula que tienes que saber.
+
+25
+00:01:36.849 --> 00:01:40.241
+El estado inicial de cada nodo son sus atributos.
+
+26
+00:01:40.241 --> 00:01:44.533
+En cada capa, el nuevo estado es una no linealidad aplicada a:
+
+27
+00:01:44.533 --> 00:01:49.795
+W por el promedio de los estados de los vecinos, más B por el estado propio.
+
+28
+00:01:49.795 --> 00:01:53.256
+El embedding final es el estado de la última capa.
+
+29
+00:01:53.606 --> 00:01:56.568
+Fíjate que empieza con los atributos x:
+
+30
+00:01:56.568 --> 00:02:00.062
+así la GNN sí usa la información de cada nodo.
+
+31
+00:02:00.412 --> 00:02:06.316
+Promedio de vecinos con W, el propio nodo con B, y una ReLU o similar.
+
+32
+00:02:06.666 --> 00:02:12.586
+Si apilamos L capas, cada nodo recibe información de su vecindario a L saltos.
+
+33
+00:02:12.586 --> 00:02:15.090
+Eso se llama el grafo de cómputo.
+
+34
+00:02:15.440 --> 00:02:16.794
+Y lo más importante:
+
+35
+00:02:16.794 --> 00:02:19.638
+W y B son los mismos para todos los nodos.
+
+36
+00:02:19.638 --> 00:02:23.972
+Por eso el número de parámetros no depende del tamaño del grafo,
+
+37
+00:02:23.972 --> 00:02:26.816
+y por eso se puede aplicar a nodos nuevos.
+
+38
+00:02:27.616 --> 00:02:31.719
+Con los embeddings se resuelven tareas en tres niveles.
+
+39
+00:02:31.719 --> 00:02:36.792
+A nivel de nodo, un clasificador sobre el embedding, con un softmax.
+
+40
+00:02:36.792 --> 00:02:40.000
+Por ejemplo, detectar cuentas fraudulentas.
+
+41
+00:02:40.350 --> 00:02:45.643
+A nivel de arista, un decodificador que combina los embeddings de los dos extremos,
+
+42
+00:02:45.643 --> 00:02:48.321
+por ejemplo con producto punto y sigmoide.
+
+43
+00:02:48.321 --> 00:02:51.510
+Así se hace recomendación o predicción de enlaces.
+
+44
+00:02:51.860 --> 00:02:56.549
+Y a nivel de grafo, un readout simétrico que resume todos los nodos,
+
+45
+00:02:56.549 --> 00:02:58.894
+por ejemplo la suma o el promedio.
+
+46
+00:02:58.894 --> 00:03:02.756
+Así se clasifica una molécula completa como tóxica o no.
+
+47
+00:03:03.556 --> 00:03:04.800
+¿Cómo se entrena?
+
+48
+00:03:04.800 --> 00:03:10.361
+En clasificación de nodos, solo los nodos con etiqueta aportan a la pérdida,
+
+49
+00:03:10.361 --> 00:03:11.898
+con entropía cruzada.
+
+50
+00:03:11.898 --> 00:03:16.142
+Los demás participan propagando información a sus vecinos.
+
+51
+00:03:16.142 --> 00:03:18.484
+Es aprendizaje semi-supervisado.
+
+52
+00:03:18.834 --> 00:03:22.416
+El gradiente viaja hacia atrás por las capas hasta W y B,
+
+53
+00:03:22.416 --> 00:03:24.742
+y como esas matrices son compartidas,
+
+54
+00:03:24.742 --> 00:03:28.890
+su gradiente suma los aportes de todos los nodos de entrenamiento.
+
+55
+00:03:29.240 --> 00:03:32.841
+En predicción de enlaces se usa entropía cruzada binaria:
+
+56
+00:03:32.841 --> 00:03:37.136
+las aristas reales como positivos y pares sin arista como negativos.
+
+57
+00:03:37.486 --> 00:03:40.370
+Y una regla de oro para los casos de estudio:
+
+58
+00:03:40.370 --> 00:03:43.575
+retira del grafo las aristas que quieres predecir.
+
+59
+00:03:43.575 --> 00:03:48.382
+Si no, el modelo las ve durante el entrenamiento y hay fuga de información.
+
+60
+00:03:48.732 --> 00:03:54.972
+Se optimiza con SGD o Adam, y en grafos enormes con mini-batches y muestreo de vecinos.
+
+61
+00:03:55.772 --> 00:03:57.425
+Tres variantes clásicas.
+
+62
+00:03:57.425 --> 00:04:01.697
+GCN agrega vecinos y el propio nodo normalizando por el grado.
+
+63
+00:04:01.697 --> 00:04:05.693
+Es simple y eficiente, pero todos los vecinos pesan igual,
+
+64
+00:04:05.693 --> 00:04:11.204
+y con muchas capas los embeddings se vuelven todos parecidos, el over-smoothing.
+
+65
+00:04:11.554 --> 00:04:17.692
+GraphSAGE muestrea un número fijo de vecinos, los agrega y concatena con el propio nodo.
+
+66
+00:04:17.692 --> 00:04:21.599
+Es inductivo y escala a grafos enormes con mini-batches.
+
+67
+00:04:21.599 --> 00:04:25.714
+Es la que más conviene citar en los casos de escalabilidad.
+
+68
+00:04:26.064 --> 00:04:30.118
+Y GAT pondera cada vecino con un mecanismo de atención aprendido,
+
+69
+00:04:30.118 --> 00:04:34.296
+así que los vecinos importantes pesan más, a cambio de más cómputo.
+
+70
+00:04:35.096 --> 00:04:37.778
+Esta comparación cae mucho en los casos.
+
+71
+00:04:37.778 --> 00:04:43.814
+node2vec usa una tabla con un vector por nodo, así que sus parámetros crecen con el grafo,
+
+72
+00:04:43.814 --> 00:04:46.161
+no usa atributos y es transductivo.
+
+73
+00:04:46.161 --> 00:04:50.051
+La GNN usa una función compartida, parte de los atributos,
+
+74
+00:04:50.051 --> 00:04:53.672
+es inductiva y puede entrenarse con cualquier pérdida.
+
+75
+00:04:54.022 --> 00:04:59.606
+Una GNN supera al machine learning clásico cuando la relación entre entidades importa:
+
+76
+00:04:59.606 --> 00:05:05.254
+moléculas, fraude en redes de transacciones, recomendación, tráfico, citas o proteínas.
+
+77
+00:05:05.604 --> 00:05:07.509
+La frase clave para el examen:
+
+78
+00:05:07.509 --> 00:05:12.588
+la relación entre entidades es parte de la señal, y un modelo tabular la ignora.
+
+79
+00:05:13.388 --> 00:05:13.898
+Resumen:
+
+80
+00:05:13.898 --> 00:05:18.172
+las CNN no sirven porque los grafos no tienen tamaño fijo ni orden,
+
+81
+00:05:18.172 --> 00:05:20.787
+así que la agregación debe ser simétrica.
+
+82
+00:05:20.787 --> 00:05:25.954
+Una capa es sigma de W por el promedio de los vecinos más B por el estado propio,
+
+83
+00:05:25.954 --> 00:05:27.740
+empezando por los atributos.
+
+84
+00:05:28.090 --> 00:05:35.107
+L capas dan información de L saltos, y como W y B se comparten, la GNN es inductiva.
+
+85
+00:05:35.107 --> 00:05:38.866
+Las tareas son de nodo, de arista o de grafo.
+
+86
+00:05:39.216 --> 00:05:44.575
+Para escalar, GraphSAGE con muestreo de vecinos, y para predecir enlaces,
+
+87
+00:05:44.575 --> 00:05:46.704
+retirar las aristas objetivo.
+
+88
+00:05:47.054 --> 00:05:51.755
+En el video práctico calculamos una capa completa a mano.
+
+89
+00:05:51.755 --> 00:05:52.910
+Nos vemos ahí.
+

@@ -1,0 +1,282 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:03.959
+Los casos de estudio valen seis de los catorce puntos del examen:
+
+2
+00:00:03.959 --> 00:00:06.273
+tres preguntas abiertas de dos puntos.
+
+3
+00:00:06.273 --> 00:00:09.806
+En este video vemos una estructura fija para responderlos,
+
+4
+00:00:09.806 --> 00:00:14.496
+un mapa de qué técnica usar según el problema, y las frases que suman puntos.
+
+5
+00:00:15.596 --> 00:00:18.748
+Los casos piden diseñar y justificar.
+
+6
+00:00:18.748 --> 00:00:21.644
+No basta con recitar definiciones.
+
+7
+00:00:21.994 --> 00:00:26.938
+El profesor quiere ver que conectas el problema con las técnicas concretas del curso.
+
+8
+00:00:27.288 --> 00:00:31.248
+Y casi siempre pregunta por la eficiencia o la escalabilidad.
+
+9
+00:00:31.598 --> 00:00:34.654
+En el examen dos mil veintiséis uno vinieron tres:
+
+10
+00:00:34.654 --> 00:00:39.726
+explicar BFR con pseudocódigo en un clúster, transformar vectores en un grafo k-NN,
+
+11
+00:00:39.726 --> 00:00:45.470
+y diseñar una solución para predecir accidentes viales a escala de millones de intersecciones.
+
+12
+00:00:46.270 --> 00:00:49.108
+Esta es la estructura que recomendamos.
+
+13
+00:00:49.108 --> 00:00:49.909
+Bloque uno:
+
+14
+00:00:49.909 --> 00:00:53.766
+reformular el problema como una tarea de data mining.
+
+15
+00:00:53.766 --> 00:00:59.734
+¿Hay que predecir un valor, clasificar nodos, predecir enlaces, agrupar o rankear?
+
+16
+00:01:00.084 --> 00:01:00.982
+Bloque dos:
+
+17
+00:01:00.982 --> 00:01:02.452
+la representación.
+
+18
+00:01:02.452 --> 00:01:09.312
+¿Es una tabla, una matriz de utilidad, un grafo intrínseco o un grafo de proximidad?
+
+19
+00:01:09.312 --> 00:01:12.660
+Define nodos, aristas, pesos y atributos.
+
+20
+00:01:13.010 --> 00:01:13.874
+Bloque tres:
+
+21
+00:01:13.874 --> 00:01:18.338
+el pipeline paso a paso, desde la ingesta hasta el despliegue.
+
+22
+00:01:18.688 --> 00:01:19.785
+Bloque cuatro:
+
+23
+00:01:19.785 --> 00:01:23.861
+los algoritmos concretos, y por qué esos y no otros.
+
+24
+00:01:23.861 --> 00:01:27.232
+Compararlos con la alternativa suma puntos.
+
+25
+00:01:27.582 --> 00:01:28.642
+Bloque cinco:
+
+26
+00:01:28.642 --> 00:01:29.947
+cómo evaluarías.
+
+27
+00:01:29.947 --> 00:01:36.634
+RMSE para recomendación, modularidad para comunidades, ARI o NMI contra etiquetas,
+
+28
+00:01:36.634 --> 00:01:41.934
+F1 o AUC para clasificación, y validación temporal si hay tiempo.
+
+29
+00:01:42.284 --> 00:01:43.401
+Bloque seis:
+
+30
+00:01:43.401 --> 00:01:44.982
+la escalabilidad.
+
+31
+00:01:44.982 --> 00:01:48.332
+Complejidad, memoria y distribución.
+
+32
+00:01:49.132 --> 00:01:51.191
+Este mapa te ayuda a elegir.
+
+33
+00:01:51.191 --> 00:01:52.661
+Si piden recomendar:
+
+34
+00:01:52.661 --> 00:01:59.572
+filtrado colaborativo ítem-ítem, factores latentes con sesgos, y contenido para el cold start.
+
+35
+00:01:59.922 --> 00:02:02.748
+Si piden rankear importancia o influencia:
+
+36
+00:02:02.748 --> 00:02:06.786
+PageRank y sus variantes, y betweenness para intermediarios.
+
+37
+00:02:07.136 --> 00:02:08.843
+Si piden encontrar grupos:
+
+38
+00:02:08.843 --> 00:02:13.700
+Louvain o Leiden para redes grandes, Label Propagation para redes enormes,
+
+39
+00:02:13.700 --> 00:02:18.032
+espectral si conoces k, y Girvan-Newman solo para grafos pequeños.
+
+40
+00:02:18.382 --> 00:02:21.468
+Si los datos son vectores y piden relaciones:
+
+41
+00:02:21.468 --> 00:02:25.102
+construir un grafo k-NN y aplicar técnicas de grafos.
+
+42
+00:02:25.452 --> 00:02:28.204
+Si piden predecir algo de cada nodo:
+
+43
+00:02:28.204 --> 00:02:33.708
+node2vec más un clasificador, o una GNN si hay atributos o nodos nuevos.
+
+44
+00:02:34.058 --> 00:02:36.903
+Y si los datos no caben en memoria:
+
+45
+00:02:36.903 --> 00:02:40.154
+BFR, block-stripe, Spark o mini-batches.
+
+46
+00:02:40.954 --> 00:02:43.807
+Algunas frases que demuestran dominio.
+
+47
+00:02:43.807 --> 00:02:44.408
+Primera:
+
+48
+00:02:44.408 --> 00:02:50.414
+la relación entre entidades es parte de la señal, y un modelo tabular la ignora.
+
+49
+00:02:50.414 --> 00:02:52.066
+Justifica usar grafos.
+
+50
+00:02:52.416 --> 00:02:52.942
+Segunda:
+
+51
+00:02:52.942 --> 00:02:56.822
+las aristas de un grafo k-NN se construyen, no se observan,
+
+52
+00:02:56.822 --> 00:03:00.768
+así que pruebo varios valores de k y comparo la modularidad.
+
+53
+00:03:01.118 --> 00:03:01.716
+Tercera:
+
+54
+00:03:01.716 --> 00:03:04.705
+Louvain es casi n log n y no necesita k;
+
+55
+00:03:04.705 --> 00:03:08.366
+Girvan-Newman es m al cuadrado por n y no escala.
+
+56
+00:03:08.716 --> 00:03:09.247
+Cuarta:
+
+57
+00:03:09.247 --> 00:03:11.144
+node2vec es transductivo;
+
+58
+00:03:11.144 --> 00:03:16.684
+para entidades nuevas uso GraphSAGE, que es inductivo y muestrea vecinos.
+
+59
+00:03:17.034 --> 00:03:17.588
+Y quinta:
+
+60
+00:03:17.588 --> 00:03:23.009
+evito la fuga de información con un split temporal y retirando del grafo las aristas que
+
+61
+00:03:23.009 --> 00:03:23.994
+quiero predecir.
+
+62
+00:03:24.794 --> 00:03:26.520
+Y los errores que restan.
+
+63
+00:03:26.520 --> 00:03:32.594
+El primero, nombrar algoritmos sin explicar por qué ni cómo se aplican al caso concreto.
+
+64
+00:03:32.944 --> 00:03:38.704
+Segundo, olvidar la escalabilidad cuando el enunciado habla de millones de usuarios o nodos.
+
+65
+00:03:39.054 --> 00:03:45.102
+Tercero, decir "uso un grafo" sin definir qué son los nodos, las aristas y los atributos.
+
+66
+00:03:45.452 --> 00:03:52.196
+Cuarto, proponer algoritmos que no escalan, como Girvan-Newman o espectral, para redes enormes.
+
+67
+00:03:52.546 --> 00:03:53.872
+Administra el tiempo:
+
+68
+00:03:53.872 --> 00:03:56.271
+unos quince a veinte minutos por caso,
+
+69
+00:03:56.271 --> 00:04:00.059
+primero un esquema con los seis bloques y luego prosa breve.
+
+70
+00:04:00.059 --> 00:04:04.162
+En el video práctico armamos juntos la respuesta de un caso real.
+

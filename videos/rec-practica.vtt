@@ -1,0 +1,350 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:02.298
+En este video resolvemos, paso a paso,
+
+2
+00:00:02.298 --> 00:00:07.983
+el ejercicio de filtrado colaborativo basado en ítems que vino en el examen dos mil veintiséis
+
+3
+00:00:07.983 --> 00:00:12.216
+uno, y al final un paso de descenso de gradiente en factores latentes.
+
+4
+00:00:13.316 --> 00:00:14.954
+Este es el enunciado.
+
+5
+00:00:14.954 --> 00:00:22.052
+La tabla tiene las calificaciones de tres usuarios, Alice, Bob y Carol, a cuatro películas.
+
+6
+00:00:22.402 --> 00:00:27.992
+Nos piden predecir qué nota le daría Carol a Piratas usando filtrado colaborativo basado en
+
+7
+00:00:27.992 --> 00:00:29.650
+ítems con similitud coseno.
+
+8
+00:00:30.000 --> 00:00:31.682
+Y una nota importante:
+
+9
+00:00:31.682 --> 00:00:35.353
+ignorar normalización, sesgos y selección Top-K.
+
+10
+00:00:35.353 --> 00:00:39.864
+Es decir, usamos todas las películas que Carol sí calificó.
+
+11
+00:00:40.214 --> 00:00:44.870
+Vale dos puntos, y el profesor quiere ver el procedimiento completo.
+
+12
+00:00:45.670 --> 00:00:46.309
+Paso uno:
+
+13
+00:00:46.309 --> 00:00:48.012
+identificar los vecinos.
+
+14
+00:00:48.012 --> 00:00:53.831
+En ítem-ítem, la predicción usa las notas que el propio usuario dio a otros ítems.
+
+15
+00:00:53.831 --> 00:00:58.870
+Así que los vecinos de Piratas son las películas que Carol sí calificó.
+
+16
+00:00:59.220 --> 00:01:01.130
+Miramos la columna de Carol:
+
+17
+00:01:01.130 --> 00:01:04.404
+la celda de Piratas es la que queremos predecir.
+
+18
+00:01:04.754 --> 00:01:08.804
+Carol calificó Avatar con cuatro y Matrix con dos.
+
+19
+00:01:08.804 --> 00:01:11.234
+Esos son nuestros dos vecinos.
+
+20
+00:01:11.584 --> 00:01:18.064
+Titanic no entra, porque Carol no la calificó, así que no tenemos una nota suya que ponderar.
+
+21
+00:01:18.864 --> 00:01:19.553
+Paso dos:
+
+22
+00:01:19.553 --> 00:01:26.138
+escribir cada película como un vector, donde cada componente es la nota de un usuario,
+
+23
+00:01:26.138 --> 00:01:28.435
+en el orden Alice, Bob, Carol.
+
+24
+00:01:28.435 --> 00:01:30.120
+Los vacíos valen cero.
+
+25
+00:01:30.470 --> 00:01:33.590
+Piratas es uno, dos, cero.
+
+26
+00:01:33.940 --> 00:01:37.180
+Avatar es cinco, tres, cuatro.
+
+27
+00:01:37.530 --> 00:01:42.522
+Y Matrix es dos, cero, dos, porque Bob no la calificó.
+
+28
+00:01:42.872 --> 00:01:48.800
+Fíjate que la nota que buscamos, Carol en Piratas, también entra como cero en el vector.
+
+29
+00:01:49.600 --> 00:01:50.329
+Paso tres:
+
+30
+00:01:50.329 --> 00:01:53.464
+la similitud coseno entre Piratas y Avatar.
+
+31
+00:01:53.464 --> 00:01:55.943
+El numerador es el producto punto:
+
+32
+00:01:55.943 --> 00:01:59.808
+uno por cinco, más dos por tres, más cero por cuatro.
+
+33
+00:01:59.808 --> 00:02:03.016
+El denominador es el producto de las normas.
+
+34
+00:02:03.366 --> 00:02:05.238
+El producto punto da once.
+
+35
+00:02:05.238 --> 00:02:10.278
+La norma de Piratas es raíz de cinco y la de Avatar raíz de cincuenta;
+
+36
+00:02:10.278 --> 00:02:12.942
+su producto es quince punto ocho uno.
+
+37
+00:02:12.942 --> 00:02:16.686
+Once entre eso da cero punto seis nueve cinco siete.
+
+38
+00:02:17.036 --> 00:02:18.992
+Ahora Piratas con Matrix:
+
+39
+00:02:18.992 --> 00:02:22.748
+uno por dos, más dos por cero, más cero por dos.
+
+40
+00:02:23.098 --> 00:02:28.480
+El producto punto da dos, y el denominador es raíz de cinco por raíz de ocho,
+
+41
+00:02:28.480 --> 00:02:30.297
+seis punto tres dos cinco.
+
+42
+00:02:30.297 --> 00:02:33.442
+La similitud es cero punto tres uno seis dos.
+
+43
+00:02:33.792 --> 00:02:39.384
+Avatar se parece bastante más a Piratas que Matrix, así que su nota pesará más.
+
+44
+00:02:40.184 --> 00:02:40.962
+Paso cuatro:
+
+45
+00:02:40.962 --> 00:02:44.916
+la predicción es el promedio ponderado de las notas de Carol,
+
+46
+00:02:44.916 --> 00:02:47.120
+usando las similitudes como pesos.
+
+47
+00:02:47.470 --> 00:02:48.316
+Reemplazamos:
+
+48
+00:02:48.316 --> 00:02:53.974
+cero punto seis nueve cinco siete por cuatro, más cero punto tres uno seis dos por dos,
+
+49
+00:02:53.974 --> 00:02:56.446
+todo entre la suma de las similitudes.
+
+50
+00:02:56.796 --> 00:03:03.300
+El numerador da tres punto cuatro uno cinco dos, y el denominador uno punto cero uno uno nueve.
+
+51
+00:03:03.650 --> 00:03:04.376
+Resultado:
+
+52
+00:03:04.376 --> 00:03:09.530
+tres punto tres siete cinco, aproximadamente tres punto treinta y ocho.
+
+53
+00:03:09.880 --> 00:03:11.885
+Comprobación de sentido común:
+
+54
+00:03:11.885 --> 00:03:18.102
+la predicción debe estar entre las notas de los vecinos, dos y cuatro, y más cerca de cuatro,
+
+55
+00:03:18.102 --> 00:03:20.308
+porque Avatar es el más parecido.
+
+56
+00:03:20.308 --> 00:03:20.776
+Cuadra.
+
+57
+00:03:21.576 --> 00:03:23.714
+Ahora las trampas frecuentes.
+
+58
+00:03:23.714 --> 00:03:24.525
+La primera:
+
+59
+00:03:24.525 --> 00:03:30.792
+no uses el propio ítem objetivo como vecino, ni películas que el usuario no calificó.
+
+60
+00:03:31.142 --> 00:03:31.886
+La segunda:
+
+61
+00:03:31.886 --> 00:03:33.782
+lee la convención de vacíos.
+
+62
+00:03:33.782 --> 00:03:38.925
+La estándar del curso es poner cero en los vacíos y usar el vector completo,
+
+63
+00:03:38.925 --> 00:03:41.294
+y eso da tres punto treinta y ocho.
+
+64
+00:03:41.644 --> 00:03:47.148
+Si en cambio calcularas el coseno solo sobre los usuarios que calificaron ambas películas,
+
+65
+00:03:47.148 --> 00:03:51.613
+obtendrías otras similitudes y una predicción de dos punto noventa y dos.
+
+66
+00:03:51.613 --> 00:03:55.588
+En el examen, escribe explícitamente qué convención estás usando.
+
+67
+00:03:55.938 --> 00:04:02.077
+Y si te piden Top-K, quédate solo con los k vecinos más similares con similitud positiva.
+
+68
+00:04:02.077 --> 00:04:05.802
+Si te piden Pearson, primero centra restando la media.
+
+69
+00:04:06.602 --> 00:04:10.525
+Para cerrar, un paso de descenso de gradiente estocástico.
+
+70
+00:04:10.525 --> 00:04:15.665
+La calificación real es cuatro, el vector del ítem es uno, cero punto cinco,
+
+71
+00:04:15.665 --> 00:04:21.482
+el del usuario es dos, uno, con tasa de aprendizaje y lambda iguales a cero punto uno.
+
+72
+00:04:21.832 --> 00:04:23.077
+Primero el error:
+
+73
+00:04:23.077 --> 00:04:25.347
+cuatro menos el producto punto.
+
+74
+00:04:25.347 --> 00:04:31.133
+El producto punto es uno por dos más cero punto cinco por uno, dos punto cinco.
+
+75
+00:04:31.133 --> 00:04:33.184
+El error es uno punto cinco.
+
+76
+00:04:33.534 --> 00:04:34.663
+Actualizamos q:
+
+77
+00:04:34.663 --> 00:04:38.578
+le sumamos eta por, error por p, menos lambda por q.
+
+78
+00:04:38.578 --> 00:04:43.547
+Eso es cero punto uno por dos punto nueve, uno punto cuatro cinco.
+
+79
+00:04:43.547 --> 00:04:48.366
+El nuevo q es uno punto dos nueve, cero punto seis cuatro cinco.
+
+80
+00:04:48.716 --> 00:04:52.853
+Actualizamos p de la misma forma, pero usando el q antiguo:
+
+81
+00:04:52.853 --> 00:04:57.901
+error por q menos lambda por p da uno punto tres, cero punto seis cinco.
+
+82
+00:04:57.901 --> 00:05:02.108
+El nuevo p es dos punto uno tres, uno punto cero seis cinco.
+
+83
+00:05:02.458 --> 00:05:06.230
+El error más común es usar el q nuevo al actualizar p.
+
+84
+00:05:06.230 --> 00:05:10.422
+Si recalculas la predicción, da unos tres punto cuatro tres:
+
+85
+00:05:10.422 --> 00:05:13.286
+se acercó a la nota real, que era cuatro.
+
+86
+00:05:13.286 --> 00:05:14.124
+Eso es todo;
+
+87
+00:05:14.124 --> 00:05:18.106
+ahora practica con números nuevos en la sección Práctica.
+
