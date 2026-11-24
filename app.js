@@ -109,6 +109,7 @@
         <div class="hero-cta">
           <a class="btn primary" href="#simulacro">Hacer el simulacro 2026-1</a>
           <a class="btn" href="#practica">Practicar ejercicios</a>
+          <a class="btn" href="apuntes.pdf" target="_blank" rel="noopener">Hoja de apuntes (PDF)</a>
           <a class="btn ghost" href="#inicio" data-scroll-v>Ver los videos</a>
           <a class="btn ghost" href="#notas">Simular mi nota</a>
         </div>

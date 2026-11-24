@@ -18,5 +18,6 @@ Funciona en navegador de escritorio, iPad y iPhone, y se puede instalar en la pa
 - `engine.js` — generadores de ejercicios, autograder, dibujo de grafos
 - `data.js` — teoría, recetas, quizzes, casos de estudio, examen 2026-1
 - `app.js` — navegación y vistas
+- `apuntes.pdf` — hoja de apuntes A4 de 2 caras (fuente: `../video_src/apuntes.html`, generar con `apuntes_pdf.py`)
 - `videos.js`, `videos/` — 14 videos MP4 con subtítulos (.vtt) y portadas (.jpg); generados con `../video_src/build.py`
 - `sw.js`, `manifest.webmanifest`, `icons/` — instalación y modo sin conexión
